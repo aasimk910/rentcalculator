@@ -70,7 +70,7 @@ export default function BillSummary({ tenant, month, onGenerateBill, generating 
     `─────────────────────\n` +
     `*Total: NPR ${total.toLocaleString()}*\n` +
     `\n💳 Scan QR to pay:\n${qrCodeUrl}\n` +
-    `\nPlease pay by the end of the month. Thank you!`;
+    `\nThank you!`;
 
   const rows = [
     { label: 'Monthly Rent', value: tenant.rent, icon: '🏠' },
