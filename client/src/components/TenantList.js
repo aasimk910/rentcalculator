@@ -3,6 +3,8 @@ import './TenantList.css';
 
 const ELECTRICITY_RATE = 11;
 
+const QR_CODE_URL = `${window.location.origin}/WhatsApp%20Image%202026-03-17%20at%2011.14.22%20AM.jpeg`;
+
 function buildWhatsAppMessage(tenant, month, unitNum, consumed, electricityBill, total) {
   return (
     `*Rent Bill - ${month}*\n` +
@@ -15,6 +17,7 @@ function buildWhatsAppMessage(tenant, month, unitNum, consumed, electricityBill,
     `Electricity:  NPR ${electricityBill.toLocaleString()} (${consumed} units @ NPR 11)\n` +
     `─────────────────────\n` +
     `*Total: NPR ${total.toLocaleString()}*\n` +
+    `\n💳 Scan QR to pay:\n${QR_CODE_URL}\n` +
     `\nPlease pay by the end of the month. Thank you!`
   );
 }

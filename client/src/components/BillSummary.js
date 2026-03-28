@@ -56,6 +56,8 @@ export default function BillSummary({ tenant, month, onGenerateBill, generating 
 
   const handlePrint = () => window.print();
 
+  const qrCodeUrl = `${window.location.origin}/WhatsApp%20Image%202026-03-17%20at%2011.14.22%20AM.jpeg`;
+
   const whatsappMessage =
     `*Rent Bill - ${month}*\n` +
     `Tenant: ${tenant.name}\n` +
@@ -67,6 +69,7 @@ export default function BillSummary({ tenant, month, onGenerateBill, generating 
     `Electricity:  NPR ${electricityBill.toLocaleString()} (${consumed} units @ NPR 11)\n` +
     `─────────────────────\n` +
     `*Total: NPR ${total.toLocaleString()}*\n` +
+    `\n💳 Scan QR to pay:\n${qrCodeUrl}\n` +
     `\nPlease pay by the end of the month. Thank you!`;
 
   const rows = [
