@@ -93,6 +93,12 @@ router.post('/:id/generate-bill', async (req, res) => {
     const { month, currentUnit } = req.body;
     if (!month) return res.status(400).json({ message: 'Month is required' });
 
+    // Prevent duplicate bill for the same month
+    const alreadySaved = tenant.billHistory.some((b) => b.month === month);
+    if (alreadySaved) {
+      return res.status(400).json({ message: `Bill for ${month} has already been saved.` });
+    }
+
     // Allow passing currentUnit directly (from quick-bill modal)
     if (currentUnit !== undefined) {
       if (currentUnit < tenant.previousUnit) {
