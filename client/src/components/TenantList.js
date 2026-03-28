@@ -34,18 +34,25 @@ function QuickBillModal({ tenant, month, onConfirm, onClose, saving }) {
       ? tenant.rent + tenant.waterBill + tenant.wastageBill + electricityBill
       : null;
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const validate = () => {
     if (unit === '' || isNaN(unit) || Number(unit) < 0) {
       setError('Enter a valid unit reading');
-      return;
+      return false;
     }
     if (Number(unit) < tenant.previousUnit) {
       setError(`Must be ≥ previous unit (${tenant.previousUnit})`);
-      return;
+      return false;
     }
     setError('');
-    onConfirm(tenant._id, month, Number(unit));
+    return true;
+  };
+
+  const handleWhatsApp = async (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+    const waUrl = `https://wa.me/${tenant.phone.replace(/\D/g, '')}?text=${encodeURIComponent(buildWhatsAppMessage(tenant, month, unitNum, consumed, electricityBill, total))}`;
+    await onConfirm(tenant._id, month, Number(unit));
+    window.open(waUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -64,66 +71,61 @@ function QuickBillModal({ tenant, month, onConfirm, onClose, saving }) {
           <span className="qb-value mono">{tenant.previousUnit} kWh</span>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className={`qb-field ${error ? 'has-error' : ''}`}>
-            <label htmlFor="qb-unit">Current Month's Unit Reading</label>
-            <div className="input-with-prefix">
-              <span className="input-prefix">kWh</span>
-              <input
-                id="qb-unit"
-                type="number"
-                min="0"
-                placeholder={`e.g. ${tenant.previousUnit + 30}`}
-                value={unit}
-                onChange={(e) => { setUnit(e.target.value); setError(''); }}
-                autoFocus
-              />
-            </div>
-            {error && <span className="error-msg">{error}</span>}
+        <div className={`qb-field ${error ? 'has-error' : ''}`}>
+          <label htmlFor="qb-unit">Current Month's Unit Reading</label>
+          <div className="input-with-prefix">
+            <span className="input-prefix">kWh</span>
+            <input
+              id="qb-unit"
+              type="number"
+              min="0"
+              placeholder={`e.g. ${tenant.previousUnit + 30}`}
+              value={unit}
+              onChange={(e) => { setUnit(e.target.value); setError(''); }}
+              autoFocus
+            />
           </div>
+          {error && <span className="error-msg">{error}</span>}
+        </div>
 
-          {consumed !== null && consumed >= 0 && (
-            <div className="qb-preview">
-              <div className="qb-preview-row">
-                <span>Electricity</span>
-                <span className="mono">({unitNum} − {tenant.previousUnit}) × NPR 11 = <strong>NPR {electricityBill.toLocaleString()}</strong></span>
-              </div>
-              <div className="qb-preview-row">
-                <span>Rent</span>
-                <span className="mono">NPR {tenant.rent.toLocaleString()}</span>
-              </div>
-              <div className="qb-preview-row">
-                <span>Water</span>
-                <span className="mono">NPR {tenant.waterBill.toLocaleString()}</span>
-              </div>
-              <div className="qb-preview-row">
-                <span>Wastage</span>
-                <span className="mono">NPR {tenant.wastageBill.toLocaleString()}</span>
-              </div>
-              <div className="qb-preview-total">
-                <span>Total</span>
-                <span className="mono amber-text">NPR {total.toLocaleString()}</span>
-              </div>
+        {consumed !== null && consumed >= 0 && (
+          <div className="qb-preview">
+            <div className="qb-preview-row">
+              <span>Electricity</span>
+              <span className="mono">({unitNum} − {tenant.previousUnit}) × NPR 11 = <strong>NPR {electricityBill.toLocaleString()}</strong></span>
             </div>
-          )}
+            <div className="qb-preview-row">
+              <span>Rent</span>
+              <span className="mono">NPR {tenant.rent.toLocaleString()}</span>
+            </div>
+            <div className="qb-preview-row">
+              <span>Water</span>
+              <span className="mono">NPR {tenant.waterBill.toLocaleString()}</span>
+            </div>
+            <div className="qb-preview-row">
+              <span>Wastage</span>
+              <span className="mono">NPR {tenant.wastageBill.toLocaleString()}</span>
+            </div>
+            <div className="qb-preview-total">
+              <span>Total</span>
+              <span className="mono amber-text">NPR {total.toLocaleString()}</span>
+            </div>
+          </div>
+        )}
 
-          <div className="qb-actions">
-            <button type="button" className="btn-ghost" onClick={onClose}>Cancel</button>
-            {consumed !== null && consumed >= 0 && tenant.phone && (
-              <a
-                className="btn-whatsapp"
-                href={`https://wa.me/${tenant.phone.replace(/\D/g, '')}?text=${encodeURIComponent(buildWhatsAppMessage(tenant, month, unitNum, consumed, electricityBill, total))}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                📲 Send WhatsApp
-              </a>
-            )}
-            <button type="submit" className="btn-primary" disabled={saving}>
-              {saving ? 'Saving…' : 'Save Bill'}
+        <div className="qb-actions">
+          <button type="button" className="btn-ghost" onClick={onClose}>Cancel</button>
+          {consumed !== null && consumed >= 0 && tenant.phone && (
+            <button
+              type="button"
+              className="btn-whatsapp"
+              onClick={handleWhatsApp}
+              disabled={saving}
+            >
+              {saving ? 'Saving…' : '📲 Send WhatsApp & Save'}
             </button>
-          </div>
-        </form>
+          )}
+        </div>
       </div>
     </div>
   );
