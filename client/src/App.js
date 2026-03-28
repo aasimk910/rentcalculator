@@ -31,7 +31,7 @@ export default function App() {
     try {
       setLoading(true);
       const { data } = await getTenants();
-      setTenants(data);
+      setTenants(Array.isArray(data) ? data : []);
       // Keep selected in sync
       if (selectedTenant) {
         const updated = data.find((t) => t._id === selectedTenant._id);
