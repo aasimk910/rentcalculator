@@ -1,0 +1,98 @@
+.bill-history-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.history-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.1rem;
+  color: var(--slate);
+}
+
+.history-count {
+  font-size: 0.75rem;
+  background: var(--amber-bg);
+  color: var(--amber);
+  padding: 0.2rem 0.6rem;
+  border-radius: 99px;
+  font-weight: 600;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.history-item {
+  padding: 0.875rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.12s;
+}
+
+.history-item:last-child {
+  border-bottom: none;
+}
+
+.history-item:hover {
+  background: var(--surface-alt);
+}
+
+.history-item-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.3rem;
+}
+
+.history-month {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.history-total {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--slate);
+}
+
+.history-breakdown {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.history-breakdown span {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-family: 'DM Mono', monospace;
+}
+
+.history-toggle {
+  display: block;
+  width: 100%;
+  padding: 0.6rem;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--border);
+  font-size: 0.8rem;
+  color: var(--slate-muted);
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.12s;
+}
+
+.history-toggle:hover {
+  background: var(--surface-alt);
+}

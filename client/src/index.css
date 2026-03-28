@@ -1,0 +1,80 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #f7f5f0;
+  --surface: #ffffff;
+  --surface-alt: #f0ece4;
+  --border: #e2ddd5;
+  --slate: #1e3a5f;
+  --slate-light: #2d5282;
+  --slate-muted: #4a6fa5;
+  --amber: #d4860a;
+  --amber-light: #f0a824;
+  --amber-bg: #fef9ec;
+  --text: #1a1a1a;
+  --text-muted: #6b7280;
+  --text-light: #9ca3af;
+  --error: #dc2626;
+  --error-bg: #fef2f2;
+  --success: #059669;
+  --success-bg: #ecfdf5;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+  --shadow-lg: 0 4px 6px rgba(0,0,0,0.05), 0 10px 40px rgba(0,0,0,0.1);
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+h1, h2, h3 {
+  font-family: 'DM Serif Display', Georgia, serif;
+  line-height: 1.2;
+}
+
+.mono {
+  font-family: 'DM Mono', 'Courier New', monospace;
+}
+
+input[type="number"],
+input[type="text"] {
+  -moz-appearance: textfield;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-area,
+  .print-area * {
+    visibility: visible;
+  }
+  .print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+  .no-print {
+    display: none !important;
+  }
+}

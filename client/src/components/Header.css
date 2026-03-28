@@ -1,0 +1,59 @@
+.app-header {
+  background: var(--slate);
+  padding: 0;
+  border-bottom: 3px solid var(--amber);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+}
+
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.header-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.6rem;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.header-subtitle {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.6);
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.header-badge {
+  background: var(--amber);
+  border-radius: 6px;
+  padding: 0.3rem 0.75rem;
+}
+
+.badge-text {
+  font-family: 'DM Mono', monospace;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #fff;
+  letter-spacing: 0.08em;
+}
