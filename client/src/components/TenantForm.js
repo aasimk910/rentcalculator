@@ -152,15 +152,18 @@ export default function TenantForm({ onSave, editingTenant, onCancelEdit }) {
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="phone">WhatsApp Number <span style={{fontWeight:400,color:'var(--text-muted)'}}>(optional)</span></label>
-              <input
-                id="phone"
-                name="phone"
-                type="tel"
-                placeholder="e.g. 9841234567"
-                value={form.phone}
-                onChange={handleChange}
-                autoComplete="off"
-              />
+              <div className="input-with-prefix">
+                <span className="input-prefix">📱</span>
+                <input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  placeholder="e.g. 9841234567"
+                  value={form.phone}
+                  onChange={handleChange}
+                  autoComplete="off"
+                />
+              </div>
             </div>
           </div>
         </div>

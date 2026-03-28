@@ -112,7 +112,8 @@
   width: 0;
 }
 
-.form-group input[type="text"] {
+.form-group input[type="text"],
+.form-group input[type="tel"] {
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 0.6rem 0.75rem;
@@ -124,12 +125,14 @@
   transition: border-color 0.15s;
 }
 
-.form-group input[type="text"]:focus {
+.form-group input[type="text"]:focus,
+.form-group input[type="tel"]:focus {
   border-color: var(--slate-muted);
   box-shadow: 0 0 0 3px rgba(30,58,95,0.08);
 }
 
-.has-error input[type="text"] {
+.has-error input[type="text"],
+.has-error input[type="tel"] {
   border-color: var(--error);
 }
 
