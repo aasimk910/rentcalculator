@@ -10,7 +10,7 @@ const defaultForm = {
   rent: '',
   waterBill: '',
   wastageBill: '',
-  openingMeter: '',
+  previousUnit: '',
   currentUnit: '',
 };
 
@@ -28,7 +28,7 @@ export default function TenantForm({ onSave, editingTenant, onCancelEdit }) {
         rent: editingTenant.rent,
         waterBill: editingTenant.waterBill,
         wastageBill: editingTenant.wastageBill,
-        openingMeter: '',
+        previousUnit: editingTenant.previousUnit,
         currentUnit: editingTenant.currentUnit,
       });
       setErrors({});
@@ -45,18 +45,14 @@ export default function TenantForm({ onSave, editingTenant, onCancelEdit }) {
     if (form.rent === '' || isNaN(form.rent) || Number(form.rent) < 0) e.rent = 'Enter a valid rent amount';
     if (form.waterBill === '' || isNaN(form.waterBill) || Number(form.waterBill) < 0) e.waterBill = 'Enter valid water bill';
     if (form.wastageBill === '' || isNaN(form.wastageBill) || Number(form.wastageBill) < 0) e.wastageBill = 'Enter valid wastage bill';
-    if (!editingTenant) {
-      if (form.openingMeter === '' || isNaN(form.openingMeter) || Number(form.openingMeter) < 0)
-        e.openingMeter = 'Enter a valid opening meter reading';
-    }
+    if (form.previousUnit === '' || isNaN(form.previousUnit) || Number(form.previousUnit) < 0)
+      e.previousUnit = editingTenant
+        ? 'Enter a valid previous unit'
+        : 'Enter a valid opening meter reading';
     if (form.currentUnit === '' || isNaN(form.currentUnit) || Number(form.currentUnit) < 0)
       e.currentUnit = 'Enter valid current unit';
-    if (!editingTenant && !e.currentUnit && !e.openingMeter &&
-        Number(form.currentUnit) < Number(form.openingMeter)) {
-      e.currentUnit = `Current unit must be ≥ opening meter (${form.openingMeter})`;
-    }
-    if (editingTenant && !e.currentUnit && Number(form.currentUnit) < editingTenant.previousUnit) {
-      e.currentUnit = `Current unit must be ≥ previous unit (${editingTenant.previousUnit})`;
+    if (!e.currentUnit && !e.previousUnit && Number(form.currentUnit) < Number(form.previousUnit)) {
+      e.currentUnit = `Current unit must be ≥ previous unit (${form.previousUnit})`;
     }
     return e;
   };
@@ -83,11 +79,9 @@ export default function TenantForm({ onSave, editingTenant, onCancelEdit }) {
         rent: Number(form.rent),
         waterBill: Number(form.waterBill),
         wastageBill: Number(form.wastageBill),
+        previousUnit: Number(form.previousUnit),
         currentUnit: Number(form.currentUnit),
       };
-      if (!editingTenant) {
-        payload.previousUnit = Number(form.openingMeter);
-      }
       await onSave(payload, editingTenant?._id);
       if (!editingTenant) setForm(defaultForm);
       setErrors({});
@@ -100,8 +94,8 @@ export default function TenantForm({ onSave, editingTenant, onCancelEdit }) {
   };
 
   const prevUnitValue = editingTenant
-    ? editingTenant.previousUnit
-    : (form.openingMeter !== '' && !isNaN(form.openingMeter) ? Number(form.openingMeter) : null);
+    ? (form.previousUnit !== '' && !isNaN(form.previousUnit) ? Number(form.previousUnit) : null)
+    : (form.previousUnit !== '' && !isNaN(form.previousUnit) ? Number(form.previousUnit) : null);
   const consumed = form.currentUnit !== '' && prevUnitValue !== null
     ? Math.max(0, Number(form.currentUnit) - prevUnitValue)
     : null;
@@ -202,29 +196,22 @@ export default function TenantForm({ onSave, editingTenant, onCancelEdit }) {
           <h3 className="form-section-title">Electricity Meter Reading</h3>
           <p className="form-section-note">Rate: NPR 11 per unit consumed</p>
 
-          {editingTenant ? (
-            <div className="prev-unit-display">
-              <span className="prev-unit-label">Previous Month's Unit</span>
-              <span className="prev-unit-value mono">{editingTenant.previousUnit} kWh</span>
+          <div className={`form-group ${errors.previousUnit ? 'has-error' : ''}`}>
+            <label htmlFor="previousUnit">{editingTenant ? "Previous Month's Unit" : 'Opening Meter Reading'}</label>
+            <div className="input-with-prefix">
+              <span className="input-prefix">kWh</span>
+              <input
+                id="previousUnit"
+                name="previousUnit"
+                type="number"
+                min="0"
+                placeholder="e.g. 1500"
+                value={form.previousUnit}
+                onChange={handleChange}
+              />
             </div>
-          ) : (
-            <div className={`form-group ${errors.openingMeter ? 'has-error' : ''}`}>
-              <label htmlFor="openingMeter">Opening Meter Reading</label>
-              <div className="input-with-prefix">
-                <span className="input-prefix">kWh</span>
-                <input
-                  id="openingMeter"
-                  name="openingMeter"
-                  type="number"
-                  min="0"
-                  placeholder="e.g. 1500"
-                  value={form.openingMeter}
-                  onChange={handleChange}
-                />
-              </div>
-              {errors.openingMeter && <span className="error-msg">{errors.openingMeter}</span>}
-            </div>
-          )}
+            {errors.previousUnit && <span className="error-msg">{errors.previousUnit}</span>}
+          </div>
 
           <div className={`form-group ${errors.currentUnit ? 'has-error' : ''}`} style={{ marginTop: editingTenant ? '0.75rem' : '0' }}>
             <label htmlFor="currentUnit">Current Month's Unit</label>

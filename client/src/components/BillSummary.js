@@ -56,6 +56,30 @@ export default function BillSummary({ tenant, month, onGenerateBill, generating 
 
   const handlePrint = () => window.print();
 
+  const handleSaveBill = () => {
+    const defaultReading = Number.isFinite(tenant.currentUnit)
+      ? tenant.currentUnit
+      : tenant.previousUnit;
+    const input = window.prompt(
+      `Enter current month unit reading (previous: ${tenant.previousUnit})`,
+      String(defaultReading)
+    );
+
+    if (input === null) return;
+
+    const nextCurrentUnit = Number(input);
+    if (!Number.isFinite(nextCurrentUnit) || nextCurrentUnit < 0) {
+      window.alert('Please enter a valid current unit reading.');
+      return;
+    }
+    if (nextCurrentUnit < tenant.previousUnit) {
+      window.alert(`Current unit must be greater than or equal to previous unit (${tenant.previousUnit}).`);
+      return;
+    }
+
+    onGenerateBill(tenant._id, month, nextCurrentUnit);
+  };
+
   const qrCodeUrl = `${window.location.origin}/WhatsApp%20Image%202026-04-17%20at%208.38.49%20AM.jpeg`;
 
   const whatsappMessage =
@@ -140,7 +164,7 @@ export default function BillSummary({ tenant, month, onGenerateBill, generating 
       <div className="bill-actions no-print">
         <button
           className="btn-generate"
-          onClick={() => onGenerateBill(tenant._id, month)}
+          onClick={handleSaveBill}
           disabled={generating}
         >
           {generating ? 'Saving…' : '💾 Save Bill to History'}

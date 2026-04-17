@@ -51,19 +51,25 @@ router.post('/', async (req, res) => {
 
 // PUT update tenant
 router.put('/:id', async (req, res) => {
-  const { name, roomNumber, phone, rent, waterBill, wastageBill, currentUnit } = req.body;
+  const { name, roomNumber, phone, rent, waterBill, wastageBill, previousUnit, currentUnit } = req.body;
 
   try {
     const existing = await Tenant.findById(req.params.id);
     if (!existing) return res.status(404).json({ message: 'Tenant not found' });
 
-    if (currentUnit < existing.previousUnit) {
-      return res.status(400).json({ message: `Current unit must be >= previous unit (${existing.previousUnit})` });
+    const nextPreviousUnit = previousUnit !== undefined ? previousUnit : existing.previousUnit;
+
+    if (nextPreviousUnit < 0) {
+      return res.status(400).json({ message: 'Previous unit must be >= 0' });
+    }
+
+    if (currentUnit < nextPreviousUnit) {
+      return res.status(400).json({ message: `Current unit must be >= previous unit (${nextPreviousUnit})` });
     }
 
     const tenant = await Tenant.findByIdAndUpdate(
       req.params.id,
-      { name, roomNumber, phone: phone || '', rent, waterBill, wastageBill, currentUnit },
+      { name, roomNumber, phone: phone || '', rent, waterBill, wastageBill, previousUnit: nextPreviousUnit, currentUnit },
       { new: true, runValidators: true }
     );
     if (!tenant) return res.status(404).json({ message: 'Tenant not found' });
