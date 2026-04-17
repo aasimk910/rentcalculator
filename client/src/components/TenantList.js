@@ -3,7 +3,7 @@ import './TenantList.css';
 
 const ELECTRICITY_RATE = 11;
 
-const QR_CODE_URL = `${window.location.origin}/WhatsApp%20Image%202026-03-17%20at%2011.14.22%20AM.jpeg`;
+const QR_CODE_URL = `${window.location.origin}/WhatsApp%20Image%202026-04-17%20at%208.38.49%20AM.jpeg`;
 
 function buildWhatsAppMessage(tenant, month, unitNum, consumed, electricityBill, total) {
   return (
