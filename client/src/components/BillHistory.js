@@ -12,7 +12,7 @@ function BillDetailModal({ bill, tenant, onClose }) {
     `Rent:         NPR ${bill.rent.toLocaleString()}\n` +
     `Water:        NPR ${bill.waterBill.toLocaleString()}\n` +
     `Wastage:      NPR ${bill.wastageBill.toLocaleString()}\n` +
-    `Electricity:  NPR ${bill.electricityBill.toLocaleString()} (${bill.consumedUnits} units @ NPR 11)\n` +
+    `Electricity:  NPR ${bill.electricityBill.toLocaleString()} (${bill.previousUnit} → ${bill.currentUnit} = ${bill.consumedUnits} units @ NPR 11)\n` +
     `─────────────────────\n` +
     `*Total: NPR ${bill.totalBill.toLocaleString()}*\n` +
     `\n💳 Scan QR to pay:\n${qrCodeUrl}\n` +
@@ -43,7 +43,9 @@ function BillDetailModal({ bill, tenant, onClose }) {
             <span className="mono">NPR {bill.wastageBill.toLocaleString()}</span>
           </div>
           <div className="bh-modal-row">
-            <span>⚡ Electricity <span className="bh-units">({bill.consumedUnits} units)</span></span>
+            <span>⚡ Electricity
+              <span className="bh-units"> ({bill.previousUnit} → {bill.currentUnit} = {bill.consumedUnits} units)</span>
+            </span>
             <span className="mono">NPR {bill.electricityBill.toLocaleString()}</span>
           </div>
         </div>
@@ -99,7 +101,7 @@ export default function BillHistory({ history, tenant }) {
                 <span>Rent: NPR {bill.rent.toLocaleString()}</span>
                 <span>Water: NPR {bill.waterBill.toLocaleString()}</span>
                 <span>Wastage: NPR {bill.wastageBill.toLocaleString()}</span>
-                <span>Electricity: NPR {bill.electricityBill.toLocaleString()} ({bill.consumedUnits} units)</span>
+                <span>Electricity: NPR {bill.electricityBill.toLocaleString()} ({bill.previousUnit} → {bill.currentUnit} = {bill.consumedUnits} units)</span>
               </div>
               <span className="history-item-hint">Tap for details →</span>
             </div>
