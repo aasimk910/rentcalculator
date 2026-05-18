@@ -134,7 +134,7 @@ export default function App() {
               generating={generating}
             />
             {selectedTenant && (
-              <BillHistory history={selectedTenant.billHistory} />
+              <BillHistory history={selectedTenant.billHistory} tenant={selectedTenant} />
             )}
           </div>
         </div>
