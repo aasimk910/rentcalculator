@@ -28,7 +28,7 @@
   gap: 1.25rem;
   position: sticky;
   top: 80px;
-  max-height: calc(100vh - 100px);
+  max-height: calc(100vh - 90px);
   overflow-y: auto;
   /* Prevent inner modals (position:fixed) from being clipped */
   overflow-x: visible;
