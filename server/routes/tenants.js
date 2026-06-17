@@ -167,4 +167,79 @@ router.patch('/:id/bills/:billId', async (req, res) => {
   }
 });
 
+// GET monthly history for a specific tenant
+router.get('/:id/monthly-history', async (req, res) => {
+  try {
+    const tenant = await Tenant.findById(req.params.id);
+    if (!tenant) return res.status(404).json({ message: 'Tenant not found' });
+
+    const billHistory = tenant.billHistory
+      .sort((a, b) => new Date(b.generatedAt) - new Date(a.generatedAt))
+      .map((bill) => ({
+        _id: bill._id,
+        month: bill.month,
+        rent: bill.rent,
+        waterBill: bill.waterBill,
+        wastageBill: bill.wastageBill,
+        electricityBill: bill.electricityBill,
+        totalBill: bill.totalBill,
+        previousUnit: bill.previousUnit,
+        currentUnit: bill.currentUnit,
+        consumedUnits: bill.consumedUnits,
+        generatedAt: bill.generatedAt,
+      }));
+
+    const totalCollected = billHistory.reduce((sum, bill) => sum + bill.totalBill, 0);
+    const avgMonthly = billHistory.length > 0 ? totalCollected / billHistory.length : 0;
+
+    res.json({
+      tenant: {
+        _id: tenant._id,
+        name: tenant.name,
+        roomNumber: tenant.roomNumber,
+      },
+      summary: {
+        totalMonths: billHistory.length,
+        totalCollected,
+        averageMonthly: Math.round(avgMonthly),
+      },
+      history: billHistory,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// GET monthly summary for all tenants
+router.get('/summary/all-months', async (req, res) => {
+  try {
+    const tenants = await Tenant.find().select('name roomNumber billHistory');
+    
+    const allMonthsSummary = tenants.map((tenant) => ({
+      tenantId: tenant._id,
+      name: tenant.name,
+      roomNumber: tenant.roomNumber,
+      totalMonths: tenant.billHistory.length,
+      totalCollected: tenant.billHistory.reduce((sum, bill) => sum + bill.totalBill, 0),
+      lastBillMonth: tenant.billHistory.length > 0 
+        ? tenant.billHistory[tenant.billHistory.length - 1].month 
+        : 'N/A',
+    }));
+
+    const grandTotal = allMonthsSummary.reduce((sum, t) => sum + t.totalCollected, 0);
+    const totalMonthsRecorded = allMonthsSummary.reduce((sum, t) => sum + t.totalMonths, 0);
+
+    res.json({
+      summary: {
+        totalTenants: allMonthsSummary.length,
+        totalMonthsRecorded,
+        grandTotalCollected: grandTotal,
+      },
+      tenantsSummary: allMonthsSummary,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 module.exports = router;

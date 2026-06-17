@@ -17,3 +17,9 @@ export const generateBill = (id, month, currentUnit) =>
 
 export const updateBill = (tenantId, billId, data) =>
   API.patch(`/tenants/${tenantId}/bills/${billId}`, data);
+
+export const getMonthlyHistory = (tenantId) =>
+  API.get(`/tenants/${tenantId}/monthly-history`);
+
+export const getAllMonthsSummary = () =>
+  API.get('/tenants/summary/all-months');
