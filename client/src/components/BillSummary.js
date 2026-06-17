@@ -161,7 +161,7 @@ export default function BillSummary({ tenant, month, onGenerateBill, generating 
         >
           {generating ? 'Saving…' : '💾 Save Bill to History'}
         </button>
-        {tenant.phone && (
+        {tenant.phone ? (
           <a
             className="btn-whatsapp"
             href={`https://wa.me/${tenant.phone.replace(/\D/g, '')}?text=${encodeURIComponent(whatsappMessage)}`}
@@ -170,6 +170,10 @@ export default function BillSummary({ tenant, month, onGenerateBill, generating 
           >
             📲 Send WhatsApp
           </a>
+        ) : (
+          <button className="btn-whatsapp" disabled title="Add phone number to tenant to send WhatsApp">
+            📲 Send WhatsApp (no phone)
+          </button>
         )}
         <button className="btn-print" onClick={handlePrint}>
           🖨️ Print Receipt
