@@ -57,26 +57,15 @@ export default function BillSummary({ tenant, month, onGenerateBill, generating 
   const handlePrint = () => window.print();
 
   const handleSaveBill = () => {
-    const defaultReading = Number.isFinite(tenant.currentUnit)
-      ? tenant.currentUnit
-      : tenant.previousUnit;
-    const input = window.prompt(
-      `Enter current month unit reading (previous: ${tenant.previousUnit})`,
-      String(defaultReading)
-    );
-
-    if (input === null) return;
-
-    const nextCurrentUnit = Number(input);
+    const nextCurrentUnit = tenant.currentUnit;
     if (!Number.isFinite(nextCurrentUnit) || nextCurrentUnit < 0) {
-      window.alert('Please enter a valid current unit reading.');
+      window.alert('Please set a valid current unit reading in tenant settings.');
       return;
     }
     if (nextCurrentUnit < tenant.previousUnit) {
       window.alert(`Current unit must be greater than or equal to previous unit (${tenant.previousUnit}).`);
       return;
     }
-
     onGenerateBill(tenant._id, month, nextCurrentUnit);
   };
 
