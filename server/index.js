@@ -25,18 +25,13 @@ mongoose
     console.log('MongoDB connected');
     
     // Setup monthly auto-save cron job
-    // Runs at 11:55 PM on the last day of every month
-    cron.schedule('55 23 28-31 * *', async () => {
-      const now = new Date();
-      const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-      
-      if (now.getDate() === lastDayOfMonth.getDate()) {
-        try {
-          const autoSaveResult = await autoSaveMonthlyBills();
-          console.log(`[CRON] Auto-saved bills:`, autoSaveResult);
-        } catch (err) {
-          console.error('[CRON] Error auto-saving bills:', err.message);
-        }
+    // Runs at 11:55 PM on the 20th of every month
+    cron.schedule('55 23 20 * *', async () => {
+      try {
+        const autoSaveResult = await autoSaveMonthlyBills();
+        console.log(`[CRON] Auto-saved bills:`, autoSaveResult);
+      } catch (err) {
+        console.error('[CRON] Error auto-saving bills:', err.message);
       }
     });
     
