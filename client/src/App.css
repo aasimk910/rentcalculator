@@ -28,6 +28,13 @@
   gap: 1.25rem;
   position: sticky;
   top: 80px;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  /* Prevent inner modals (position:fixed) from being clipped */
+  overflow-x: visible;
+  /* Scrollbar styling */
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
 }
 
 .month-bar {
@@ -82,6 +89,9 @@
   }
   .right-col {
     position: static;
+    max-height: none;
+    overflow-y: visible;
+    order: -1;
   }
 }
 

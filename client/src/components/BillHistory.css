@@ -129,7 +129,9 @@
   border: 1px solid var(--border);
   width: 100%;
   max-width: 420px;
-  overflow: hidden;
+  max-height: 90vh;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .bh-modal-header {
@@ -314,7 +316,7 @@
 
 .bh-whatsapp-btn {
   display: block;
-  margin: 0 1.5rem 1.25rem;
+  margin: 0.5rem 1.5rem 1.25rem;
   padding: 0.7rem 1rem;
   background: #25D366;
   color: #fff;
@@ -328,4 +330,24 @@
 
 .bh-whatsapp-btn:hover {
   opacity: 0.88;
+}
+
+@media (max-width: 480px) {
+  .bh-modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .bh-modal {
+    border-radius: var(--radius) var(--radius) 0 0;
+    max-height: 85vh;
+  }
+  .bh-edit-row {
+    flex-wrap: wrap;
+  }
+  .bh-edit-arrow {
+    display: none;
+  }
+  .bh-modal-actions {
+    flex-wrap: wrap;
+  }
 }

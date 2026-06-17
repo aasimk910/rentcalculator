@@ -14,7 +14,10 @@ function buildWhatsAppMessage(tenant, month, unitNum, consumed, electricityBill,
     `Rent:         NPR ${tenant.rent.toLocaleString()}\n` +
     `Water:        NPR ${tenant.waterBill.toLocaleString()}\n` +
     `Wastage:      NPR ${tenant.wastageBill.toLocaleString()}\n` +
-    `Electricity:  NPR ${electricityBill.toLocaleString()} (${consumed} units @ NPR 11)\n` +
+    `Electricity:  NPR ${electricityBill.toLocaleString()}\n` +
+    `              Previous month: ${tenant.previousUnit} units\n` +
+    `              Current month: ${unitNum} units\n` +
+    `              Consumed: ${consumed} units @ NPR 11\n` +
     `─────────────────────\n` +
     `*Total: NPR ${total.toLocaleString()}*\n` +
     `\n💳 Scan QR to pay:\n${QR_CODE_URL}\n` +

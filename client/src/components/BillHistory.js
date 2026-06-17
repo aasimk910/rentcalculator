@@ -41,7 +41,10 @@ function BillDetailModal({ bill, tenant, onClose, onBillUpdated }) {
     `Rent:         NPR ${bill.rent.toLocaleString()}\n` +
     `Water:        NPR ${bill.waterBill.toLocaleString()}\n` +
     `Wastage:      NPR ${bill.wastageBill.toLocaleString()}\n` +
-    `Electricity:  NPR ${bill.electricityBill.toLocaleString()} (${bill.previousUnit} → ${bill.currentUnit} = ${bill.consumedUnits} units @ NPR 11)\n` +
+    `Electricity:  NPR ${bill.electricityBill.toLocaleString()}\n` +
+    `              Previous month: ${bill.previousUnit} units\n` +
+    `              Current month: ${bill.currentUnit} units\n` +
+    `              Consumed: ${bill.consumedUnits} units @ NPR 11\n` +
     `─────────────────────\n` +
     `*Total: NPR ${bill.totalBill.toLocaleString()}*\n` +
     `\n💳 Scan QR to pay:\n${qrCodeUrl}\n` +

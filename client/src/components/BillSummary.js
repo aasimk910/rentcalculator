@@ -90,7 +90,10 @@ export default function BillSummary({ tenant, month, onGenerateBill, generating 
     `Rent:         NPR ${tenant.rent.toLocaleString()}\n` +
     `Water:        NPR ${tenant.waterBill.toLocaleString()}\n` +
     `Wastage:      NPR ${tenant.wastageBill.toLocaleString()}\n` +
-    `Electricity:  NPR ${electricityBill.toLocaleString()} (${consumed} units @ NPR 11)\n` +
+    `Electricity:  NPR ${electricityBill.toLocaleString()}\n` +
+    `              Previous month: ${tenant.previousUnit} units\n` +
+    `              Current month: ${tenant.currentUnit} units\n` +
+    `              Consumed: ${consumed} units @ NPR 11\n` +
     `─────────────────────\n` +
     `*Total: NPR ${total.toLocaleString()}*\n` +
     `\n💳 Scan QR to pay:\n${qrCodeUrl}\n` +

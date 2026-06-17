@@ -97,6 +97,7 @@
 .tenant-item-actions {
   display: flex;
   gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .btn-action {
@@ -355,4 +356,29 @@
   font-size: 0.78rem;
   color: var(--error);
   margin-top: 0.25rem;
+}
+
+@media (max-width: 480px) {
+  .qb-backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .qb-modal {
+    border-radius: var(--radius) var(--radius) 0 0;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .tenant-item {
+    padding: 0.75rem 1rem;
+  }
+  .tenant-item.selected {
+    padding-left: calc(1rem - 3px);
+  }
+  .tenant-item-actions {
+    gap: 0.35rem;
+  }
+  .btn-action {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+  }
 }
