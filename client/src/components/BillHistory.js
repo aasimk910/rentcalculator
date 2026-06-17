@@ -1,7 +1,36 @@
 import React, { useState } from 'react';
 import './BillHistory.css';
+import { updateBill } from '../api';
 
-function BillDetailModal({ bill, tenant, onClose }) {
+function BillDetailModal({ bill, tenant, onClose, onBillUpdated }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editPrev, setEditPrev] = useState(String(bill.previousUnit));
+  const [editCurr, setEditCurr] = useState(String(bill.currentUnit));
+  const [editError, setEditError] = useState('');
+  const [saving, setSaving] = useState(false);
+  const handleSaveEdit = async () => {
+    const prev = Number(editPrev);
+    const curr = Number(editCurr);
+    if (isNaN(prev) || isNaN(curr) || prev < 0 || curr < 0) {
+      setEditError('Enter valid unit values');
+      return;
+    }
+    if (curr < prev) {
+      setEditError(`Current unit must be ≥ previous unit (${prev})`);
+      return;
+    }
+    setSaving(true);
+    try {
+      const { data } = await updateBill(tenant._id, bill._id, { previousUnit: prev, currentUnit: curr });
+      onBillUpdated(data.tenant);
+      onClose();
+    } catch (err) {
+      setEditError(err.response?.data?.message || 'Failed to update bill');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const qrCodeUrl = `${window.location.origin}/WhatsApp%20Image%202026-04-17%20at%208.38.49%20AM.jpeg`;
 
   const whatsappMessage =
@@ -44,15 +73,61 @@ function BillDetailModal({ bill, tenant, onClose }) {
           </div>
           <div className="bh-modal-row">
             <span>⚡ Electricity
-              <span className="bh-units"> ({bill.previousUnit} → {bill.currentUnit} = {bill.consumedUnits} units)</span>
+              {!isEditing && (
+                <span className="bh-units"> ({bill.previousUnit} → {bill.currentUnit} = {bill.consumedUnits} units)</span>
+              )}
             </span>
             <span className="mono">NPR {bill.electricityBill.toLocaleString()}</span>
           </div>
+
+          {isEditing && (
+            <div className="bh-edit-row">
+              <label className="bh-edit-label">
+                Previous unit
+                <input
+                  className="bh-edit-input"
+                  type="number"
+                  min="0"
+                  value={editPrev}
+                  onChange={(e) => { setEditPrev(e.target.value); setEditError(''); }}
+                />
+              </label>
+              <span className="bh-edit-arrow">→</span>
+              <label className="bh-edit-label">
+                Current unit
+                <input
+                  className="bh-edit-input"
+                  type="number"
+                  min="0"
+                  value={editCurr}
+                  onChange={(e) => { setEditCurr(e.target.value); setEditError(''); }}
+                />
+              </label>
+            </div>
+          )}
+          {editError && <p className="bh-edit-error">{editError}</p>}
         </div>
 
         <div className="bh-modal-total">
           <span>Total Amount Due</span>
           <span className="mono bh-total-val">NPR {bill.totalBill.toLocaleString()}</span>
+        </div>
+
+        <div className="bh-modal-actions">
+          {!isEditing ? (
+            <button className="bh-edit-btn" onClick={() => setIsEditing(true)}>
+              ✏️ Correct meter readings
+            </button>
+          ) : (
+            <>
+              <button className="bh-save-btn" onClick={handleSaveEdit} disabled={saving}>
+                {saving ? 'Saving…' : '✓ Save correction'}
+              </button>
+              <button className="bh-cancel-btn" onClick={() => { setIsEditing(false); setEditError(''); setEditPrev(String(bill.previousUnit)); setEditCurr(String(bill.currentUnit)); }}>
+                Cancel
+              </button>
+            </>
+          )}
         </div>
 
         {tenant.phone && (
@@ -70,7 +145,7 @@ function BillDetailModal({ bill, tenant, onClose }) {
   );
 }
 
-export default function BillHistory({ history, tenant }) {
+export default function BillHistory({ history, tenant, onBillUpdate }) {
   const [expanded, setExpanded] = useState(false);
   const [selectedBill, setSelectedBill] = useState(null);
 
@@ -119,6 +194,10 @@ export default function BillHistory({ history, tenant }) {
           bill={selectedBill}
           tenant={tenant}
           onClose={() => setSelectedBill(null)}
+          onBillUpdated={(updatedTenant) => {
+            setSelectedBill(null);
+            if (onBillUpdate) onBillUpdate(updatedTenant);
+          }}
         />
       )}
     </>

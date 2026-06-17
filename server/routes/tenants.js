@@ -137,4 +137,34 @@ router.post('/:id/generate-bill', async (req, res) => {
   }
 });
 
+// PATCH correct meter readings for a specific historical bill
+router.patch('/:id/bills/:billId', async (req, res) => {
+  try {
+    const tenant = await Tenant.findById(req.params.id);
+    if (!tenant) return res.status(404).json({ message: 'Tenant not found' });
+
+    const bill = tenant.billHistory.id(req.params.billId);
+    if (!bill) return res.status(404).json({ message: 'Bill not found' });
+
+    const { previousUnit, currentUnit } = req.body;
+
+    if (previousUnit !== undefined) bill.previousUnit = Number(previousUnit);
+    if (currentUnit !== undefined) bill.currentUnit = Number(currentUnit);
+
+    const consumed = bill.currentUnit - bill.previousUnit;
+    if (consumed < 0) {
+      return res.status(400).json({ message: 'Current unit must be >= previous unit' });
+    }
+
+    bill.consumedUnits = consumed;
+    bill.electricityBill = consumed * ELECTRICITY_RATE;
+    bill.totalBill = bill.rent + bill.waterBill + bill.wastageBill + bill.electricityBill;
+
+    await tenant.save();
+    res.json({ message: 'Bill corrected', tenant });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 module.exports = router;

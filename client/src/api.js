@@ -14,3 +14,6 @@ export const generateBill = (id, month, currentUnit) =>
     month,
     ...(currentUnit !== undefined && { currentUnit }),
   });
+
+export const updateBill = (tenantId, billId, data) =>
+  API.patch(`/tenants/${tenantId}/bills/${billId}`, data);

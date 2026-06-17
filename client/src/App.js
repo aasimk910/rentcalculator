@@ -134,7 +134,14 @@ export default function App() {
               generating={generating}
             />
             {selectedTenant && (
-              <BillHistory history={selectedTenant.billHistory} tenant={selectedTenant} />
+              <BillHistory
+                history={selectedTenant.billHistory}
+                tenant={selectedTenant}
+                onBillUpdate={(updatedTenant) => {
+                  setTenants((prev) => prev.map((t) => (t._id === updatedTenant._id ? updatedTenant : t)));
+                  setSelectedTenant(updatedTenant);
+                }}
+              />
             )}
           </div>
         </div>

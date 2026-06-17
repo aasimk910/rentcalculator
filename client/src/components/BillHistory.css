@@ -206,9 +206,115 @@
   color: var(--amber);
 }
 
+.bh-modal-actions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.bh-edit-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.45rem 0.9rem;
+  font-size: 0.82rem;
+  color: var(--slate-muted);
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.12s, color 0.12s;
+}
+
+.bh-edit-btn:hover {
+  background: var(--surface-alt);
+  color: var(--slate);
+}
+
+.bh-save-btn {
+  background: var(--amber);
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.45rem 0.9rem;
+  font-size: 0.82rem;
+  color: #fff;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  transition: opacity 0.12s;
+}
+
+.bh-save-btn:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.bh-save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.bh-cancel-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.45rem 0.9rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.12s;
+}
+
+.bh-cancel-btn:hover {
+  background: var(--surface-alt);
+}
+
+.bh-edit-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  padding: 0.5rem 0 0.25rem;
+}
+
+.bh-edit-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-family: 'Inter', sans-serif;
+}
+
+.bh-edit-input {
+  width: 80px;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.88rem;
+  font-family: 'DM Mono', monospace;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.bh-edit-input:focus {
+  outline: 2px solid var(--amber);
+  border-color: transparent;
+}
+
+.bh-edit-arrow {
+  font-size: 1rem;
+  color: var(--text-muted);
+  padding-bottom: 0.35rem;
+}
+
+.bh-edit-error {
+  font-size: 0.75rem;
+  color: #e53e3e;
+  margin: 0 0 0.25rem;
+}
+
 .bh-whatsapp-btn {
   display: block;
-  margin: 1rem 1.5rem 1.25rem;
+  margin: 0 1.5rem 1.25rem;
   padding: 0.7rem 1rem;
   background: #25D366;
   color: #fff;
