@@ -277,4 +277,38 @@
   .bill-summary-card {
     padding: 1.25rem;
   }
+  .bill-actions {
+    flex-direction: column;
+  }
+  .btn-generate,
+  .btn-whatsapp,
+  .btn-print {
+    flex: none;
+    width: 100%;
+  }
+  .bill-row {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .bill-row-value {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .bill-summary-card {
+    padding: 1rem;
+  }
+  .bill-row-icon {
+    font-size: 0.9rem;
+  }
+  .bill-row-label {
+    font-size: 0.8rem;
+  }
+  .bill-row-value {
+    font-size: 0.8rem;
+  }
+  .elec-formula {
+    font-size: 0.7rem;
+  }
 }

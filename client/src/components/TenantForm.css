@@ -252,4 +252,36 @@
   .tenant-form-card {
     padding: 1.25rem;
   }
+  .btn-primary {
+    padding: 0.7rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .tenant-form-card {
+    padding: 1rem;
+  }
+  .form-group label {
+    font-size: 0.75rem;
+  }
+  .input-with-prefix input {
+    font-size: 0.85rem;
+  }
+  .btn-primary {
+    padding: 0.6rem 0.9rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .tenant-form-card {
+    padding: 1rem;
+  }
+  .form-group label {
+    font-size: 0.75rem;
+  }
+  .input-with-prefix input {
+    font-size: 0.85rem;
+  }
 }
