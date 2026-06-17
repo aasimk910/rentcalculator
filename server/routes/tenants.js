@@ -242,4 +242,62 @@ router.get('/summary/all-months', async (req, res) => {
   }
 });
 
+// POST manual trigger for auto-saving monthly bills
+router.post('/auto-save/monthly', async (req, res) => {
+  try {
+    const now = new Date();
+    const monthName = now.toLocaleString('default', { month: 'long', year: 'numeric' });
+    
+    const tenants = await Tenant.find();
+    let savedCount = 0;
+    let skippedCount = 0;
+    const errors = [];
+    
+    for (const tenant of tenants) {
+      // Check if bill already exists for this month
+      const billExists = tenant.billHistory.some((b) => b.month === monthName);
+      
+      if (billExists) {
+        skippedCount++;
+        continue;
+      }
+      
+      try {
+        const consumed = tenant.currentUnit - tenant.previousUnit;
+        const electricityBill = consumed * ELECTRICITY_RATE;
+        const totalBill = tenant.rent + tenant.waterBill + tenant.wastageBill + electricityBill;
+        
+        tenant.billHistory.push({
+          month: monthName,
+          rent: tenant.rent,
+          waterBill: tenant.waterBill,
+          wastageBill: tenant.wastageBill,
+          previousUnit: tenant.previousUnit,
+          currentUnit: tenant.currentUnit,
+          consumedUnits: consumed,
+          electricityBill,
+          totalBill,
+        });
+        
+        // Roll over for next month
+        tenant.previousUnit = tenant.currentUnit;
+        await tenant.save();
+        savedCount++;
+      } catch (err) {
+        errors.push({ tenant: tenant.name, error: err.message });
+      }
+    }
+    
+    res.json({
+      message: 'Monthly bills auto-saved',
+      month: monthName,
+      savedCount,
+      skippedCount,
+      errors: errors.length > 0 ? errors : null,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 module.exports = router;

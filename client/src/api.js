@@ -23,3 +23,6 @@ export const getMonthlyHistory = (tenantId) =>
 
 export const getAllMonthsSummary = () =>
   API.get('/tenants/summary/all-months');
+
+export const autoSaveMonthlyBills = () =>
+  API.post('/tenants/auto-save/monthly');
