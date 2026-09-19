@@ -36,3 +36,21 @@
   border-color: var(--slate-muted);
   box-shadow: 0 0 0 3px rgba(30,58,95,0.08);
 }
+
+@media (max-width: 640px) {
+  .month-selector {
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  .month-selector-label {
+    font-size: 0.72rem;
+  }
+  .month-selector-controls {
+    flex: 1;
+  }
+  .month-select {
+    flex: 1;
+    min-height: 2.75rem;
+    font-size: 0.95rem;
+  }
+}

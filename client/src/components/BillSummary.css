@@ -292,6 +292,29 @@
   }
   .bill-row-value {
     width: 100%;
+    padding-left: 2.25rem;
+  }
+  .bill-card-header {
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .bill-card-title {
+    font-size: 1.25rem;
+  }
+  .bill-month-badge {
+    font-size: 0.68rem;
+    padding: 0.25rem 0.5rem;
+    text-align: center;
+  }
+  .bill-total {
+    gap: 0.75rem;
+    padding: 0.9rem 1rem;
+  }
+  .total-label {
+    font-size: 0.72rem;
+  }
+  .total-value {
+    font-size: 1.15rem;
   }
 }
 

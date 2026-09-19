@@ -252,6 +252,32 @@
   .tenant-form-card {
     padding: 1.25rem;
   }
+  .form-card-header {
+    margin-bottom: 1.25rem;
+  }
+  .form-section {
+    margin-bottom: 1.35rem;
+  }
+  .input-with-prefix input,
+  .form-group input[type="text"],
+  .form-group input[type="tel"] {
+    min-height: 2.75rem;
+    font-size: 1rem;
+  }
+  .input-prefix {
+    padding-inline: 0.65rem;
+  }
+  .btn-primary,
+  .btn-ghost {
+    min-height: 2.75rem;
+  }
+  .electricity-preview {
+    padding: 0.7rem 0.8rem;
+  }
+  .elec-calc {
+    display: block;
+    line-height: 1.5;
+  }
   .btn-primary {
     padding: 0.7rem 1rem;
     font-size: 0.9rem;

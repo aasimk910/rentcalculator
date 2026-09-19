@@ -330,6 +330,44 @@
   transition: opacity 0.15s;
 }
 
+@media (max-width: 640px) {
+  .history-header,
+  .history-item {
+    padding-inline: 1rem;
+  }
+  .history-breakdown {
+    gap: 0.45rem;
+  }
+  .bh-modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .bh-modal {
+    max-height: 92vh;
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .bh-modal-header,
+  .bh-modal-rows {
+    padding-inline: 1rem;
+  }
+  .bh-modal-total,
+  .bh-modal-actions {
+    padding-inline: 1rem;
+  }
+  .bh-modal-actions {
+    flex-wrap: wrap;
+  }
+  .bh-edit-btn,
+  .bh-save-btn,
+  .bh-cancel-btn {
+    flex: 1;
+    min-height: 2.75rem;
+  }
+  .bh-whatsapp-btn {
+    margin-inline: 1rem;
+  }
+}
+
 .bh-whatsapp-btn:hover {
   opacity: 0.88;
 }

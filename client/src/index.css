@@ -38,6 +38,13 @@ body {
   color: var(--text);
   line-height: 1.6;
   min-height: 100vh;
+  overflow-x: hidden;
+}
+
+button,
+select,
+input {
+  touch-action: manipulation;
 }
 
 h1, h2, h3 {

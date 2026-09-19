@@ -97,10 +97,20 @@
 
 @media (max-width: 640px) {
   .app-main {
-    padding: 1rem 1rem 3rem;
+    padding: 0.75rem 0.75rem 3rem;
   }
   .app-layout {
     gap: 1rem;
+  }
+  .left-col,
+  .right-col {
+    gap: 1rem;
+  }
+  .toast {
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: 0.75rem;
+    text-align: center;
   }
 }
 

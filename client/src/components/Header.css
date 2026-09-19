@@ -74,6 +74,9 @@
   .header-brand {
     gap: 0.6rem;
   }
+  .badge-text {
+    font-size: 0.75rem;
+  }
 }
 
 @media (max-width: 380px) {
