@@ -1,6 +1,7 @@
 {
-  "installCommand": "npm install && cd client && npm install",
-  "buildCommand": "cd client && npm run build",
+  "framework": "create-react-app",
+  "installCommand": "npm install && npm install --prefix client",
+  "buildCommand": "npm run build --prefix client",
   "outputDirectory": "client/build",
   "rewrites": [
     {
