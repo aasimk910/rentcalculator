@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Header from './components/Header';
 import TenantForm from './components/TenantForm';
 import TenantList from './components/TenantList';
-import BillSummary from './components/BillSummary';
 import BillHistory from './components/BillHistory';
 import MonthSelector from './components/MonthSelector';
 import { getTenants, createTenant, updateTenant, deleteTenant, generateBill } from './api';
@@ -153,12 +152,6 @@ export default function App() {
             <div className="month-bar">
               <MonthSelector value={month} onChange={setMonth} />
             </div>
-            <BillSummary
-              tenant={selectedTenant}
-              month={month}
-              onGenerateBill={handleGenerateBill}
-              generating={generating}
-            />
             {selectedTenant && (
               <BillHistory
                 history={selectedTenant.billHistory}
