@@ -4,6 +4,8 @@ const cors = require('cors');
 const cron = require('node-cron');
 require('dotenv').config();
 
+const ELECTRICITY_RATE = 12;
+
 const app = express();
 
 app.use(cors());
@@ -42,7 +44,6 @@ mongoose
 // Auto-save monthly bills function
 async function autoSaveMonthlyBills() {
   const Tenant = require('./models/Tenant');
-  const ELECTRICITY_RATE = 11;
   
   const now = new Date();
   const monthName = now.toLocaleString('default', { month: 'long', year: 'numeric' });

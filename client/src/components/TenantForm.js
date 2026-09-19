@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './TenantForm.css';
-
-const ELECTRICITY_RATE = 11;
+import { ELECTRICITY_RATE } from '../constants';
 
 const defaultForm = {
   name: '',
@@ -194,7 +193,7 @@ export default function TenantForm({ onSave, editingTenant, onCancelEdit }) {
 
         <div className="form-section">
           <h3 className="form-section-title">Electricity Meter Reading</h3>
-          <p className="form-section-note">Rate: NPR 11 per unit consumed</p>
+          <p className="form-section-note">Rate: NPR {ELECTRICITY_RATE} per unit consumed</p>
 
           <div className={`form-group ${errors.previousUnit ? 'has-error' : ''}`}>
             <label htmlFor="previousUnit">{editingTenant ? "Previous Month's Unit" : 'Opening Meter Reading'}</label>
@@ -234,7 +233,7 @@ export default function TenantForm({ onSave, editingTenant, onCancelEdit }) {
             <div className="electricity-preview">
               <span className="elec-calc">
                 ({Number(form.currentUnit) || 0} − {prevUnitValue}) ={' '}
-                <span className="mono">{consumed}</span> units × NPR 11 ={' '}
+                <span className="mono">{consumed}</span> units × NPR {ELECTRICITY_RATE} ={' '}
                 <strong className="mono amber-text">NPR {electricityPreview.toLocaleString()}</strong>
               </span>
               {!editingTenant && (

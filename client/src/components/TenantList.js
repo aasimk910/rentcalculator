@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import './TenantList.css';
-
-const ELECTRICITY_RATE = 11;
+import { ELECTRICITY_RATE } from '../constants';
 
 const QR_CODE_URL = `${window.location.origin}/WhatsApp%20Image%202026-04-17%20at%208.38.49%20AM.jpeg`;
 
@@ -17,7 +16,7 @@ function buildWhatsAppMessage(tenant, month, unitNum, consumed, electricityBill,
     `Electricity:  NPR ${electricityBill.toLocaleString()}\n` +
     `              Previous month: ${tenant.previousUnit} units\n` +
     `              Current month: ${unitNum} units\n` +
-    `              Consumed: ${consumed} units @ NPR 11\n` +
+    `              Consumed: ${consumed} units @ NPR ${ELECTRICITY_RATE}\n` +
     `─────────────────────\n` +
     `*Total: NPR ${total.toLocaleString()}*\n` +
     `\n💳 Scan QR to pay:\n${QR_CODE_URL}\n` +
@@ -95,7 +94,7 @@ function QuickBillModal({ tenant, month, onConfirm, onClose, saving }) {
           <div className="qb-preview">
             <div className="qb-preview-row">
               <span>Electricity</span>
-              <span className="mono">({unitNum} − {tenant.previousUnit}) × NPR 11 = <strong>NPR {electricityBill.toLocaleString()}</strong></span>
+              <span className="mono">({unitNum} − {tenant.previousUnit}) × NPR {ELECTRICITY_RATE} = <strong>NPR {electricityBill.toLocaleString()}</strong></span>
             </div>
             <div className="qb-preview-row">
               <span>Rent</span>

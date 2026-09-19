@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './BillHistory.css';
+import { ELECTRICITY_RATE } from '../constants';
 import { updateBill } from '../api';
 
 function BillDetailModal({ bill, tenant, onClose, onBillUpdated }) {
@@ -44,7 +45,7 @@ function BillDetailModal({ bill, tenant, onClose, onBillUpdated }) {
     `Electricity:  NPR ${bill.electricityBill.toLocaleString()}\n` +
     `              Previous month: ${bill.previousUnit} units\n` +
     `              Current month: ${bill.currentUnit} units\n` +
-    `              Consumed: ${bill.consumedUnits} units @ NPR 11\n` +
+    `              Consumed: ${bill.consumedUnits} units @ NPR ${ELECTRICITY_RATE}\n` +
     `─────────────────────\n` +
     `*Total: NPR ${bill.totalBill.toLocaleString()}*\n` +
     `\n💳 Scan QR to pay:\n${qrCodeUrl}\n` +
