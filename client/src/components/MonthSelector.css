@@ -1,0 +1,38 @@
+.month-selector {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.month-selector-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.month-selector-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.month-select {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.45rem 0.75rem;
+  font-size: 0.875rem;
+  font-family: 'Inter', sans-serif;
+  color: var(--text);
+  background: var(--surface);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.month-select:focus {
+  border-color: var(--slate-muted);
+  box-shadow: 0 0 0 3px rgba(30,58,95,0.08);
+}
