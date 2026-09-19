@@ -106,7 +106,7 @@ export default function TenantForm({ onSave, editingTenant, onCancelEdit }) {
         <h2 className="form-card-title">
           {editingTenant ? 'Edit Tenant' : 'Add New Tenant'}
         </h2>
-        {editingTenant && (
+        {onCancelEdit && (
           <button className="btn-ghost" onClick={onCancelEdit}>Cancel</button>
         )}
       </div>

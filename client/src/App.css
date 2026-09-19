@@ -22,6 +22,36 @@
   gap: 1.75rem;
 }
 
+.add-tenant-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 3rem;
+  padding: 0.75rem 1rem;
+  background: var(--surface);
+  color: var(--slate);
+  border: 1.5px dashed var(--slate-muted);
+  border-radius: var(--radius);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.add-tenant-toggle:hover {
+  background: #eef3fa;
+  border-color: var(--slate);
+}
+
+.add-tenant-icon {
+  font-size: 1.35rem;
+  font-weight: 400;
+  line-height: 1;
+}
+
 .right-col {
   display: flex;
   flex-direction: column;
@@ -105,6 +135,9 @@
   .left-col,
   .right-col {
     gap: 1rem;
+  }
+  .right-col {
+    order: initial;
   }
   .toast {
     left: 0.75rem;

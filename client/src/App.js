@@ -17,6 +17,7 @@ export default function App() {
   const [tenants, setTenants] = useState([]);
   const [selectedTenant, setSelectedTenant] = useState(null);
   const [editingTenant, setEditingTenant] = useState(null);
+  const [showTenantForm, setShowTenantForm] = useState(false);
   const [month, setMonth] = useState(defaultMonth());
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
@@ -54,11 +55,13 @@ export default function App() {
       setTenants((prev) => prev.map((t) => (t._id === id ? data : t)));
       if (selectedTenant?._id === id) setSelectedTenant(data);
       setEditingTenant(null);
+      setShowTenantForm(false);
       showToast('Tenant updated successfully');
     } else {
       const { data } = await createTenant(formData);
       setTenants((prev) => [data, ...prev]);
       setSelectedTenant(data);
+      setShowTenantForm(false);
       showToast('Tenant added successfully');
     }
   };
@@ -94,6 +97,7 @@ export default function App() {
 
   const handleEdit = (tenant) => {
     setEditingTenant(tenant);
+    setShowTenantForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -104,11 +108,6 @@ export default function App() {
         <div className="app-layout">
           {/* Left column */}
           <div className="left-col">
-            <TenantForm
-              onSave={handleSave}
-              editingTenant={editingTenant}
-              onCancelEdit={() => setEditingTenant(null)}
-            />
             <TenantList
               tenants={tenants}
               selectedId={selectedTenant?._id}
@@ -120,6 +119,22 @@ export default function App() {
               generating={generating}
               loading={loading}
             />
+            {!showTenantForm && (
+              <button className="add-tenant-toggle" onClick={() => setShowTenantForm(true)}>
+                <span className="add-tenant-icon">+</span>
+                Add New Tenant
+              </button>
+            )}
+            {showTenantForm && (
+              <TenantForm
+                onSave={handleSave}
+                editingTenant={editingTenant}
+                onCancelEdit={() => {
+                  setEditingTenant(null);
+                  setShowTenantForm(false);
+                }}
+              />
+            )}
           </div>
 
           {/* Right column */}
