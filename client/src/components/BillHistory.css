@@ -38,7 +38,27 @@
 .bh-edit-input { width: 5.5rem; min-height: 2.5rem; padding: var(--space-2); border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--ink); font-family: 'DM Mono', monospace; }
 .bh-edit-arrow { padding-bottom: var(--space-2); color: var(--ink-faint); }
 .bh-edit-error { color: var(--error); font-size: 0.75rem; }
-.bh-whatsapp-btn { display: flex; margin: 0 var(--space-6) var(--space-5); }
+.bh-whatsapp-btn {
+  display: flex;
+  min-height: 2.8rem;
+  align-items: center;
+  justify-content: center;
+  margin: 0 var(--space-6) var(--space-5);
+  padding: var(--space-2) var(--space-4);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: #18894a;
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 180ms ease, transform 180ms ease;
+}
+
+.bh-whatsapp-btn:hover {
+  background: #126c3a;
+  transform: translateY(-1px);
+}
 
 @media (max-width: 640px) {
   .history-header, .history-item { padding-inline: var(--space-4); }
