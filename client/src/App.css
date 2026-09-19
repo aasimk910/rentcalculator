@@ -1,154 +1,131 @@
 .app {
   min-height: 100vh;
-  background: var(--bg);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(199, 119, 24, 0.08), transparent 28rem),
+    var(--bg);
 }
 
 .app-main {
-  max-width: 1200px;
+  width: min(1240px, calc(100% - 2rem));
   margin: 0 auto;
-  padding: 2rem 2rem 4rem;
+  padding: var(--space-8) 0 var(--space-10);
 }
 
 .app-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.75rem;
+  grid-template-columns: minmax(300px, 0.82fr) minmax(0, 1.18fr);
+  gap: var(--space-6);
   align-items: start;
 }
 
-.left-col {
+.left-col,
+.right-col {
   display: flex;
   flex-direction: column;
-  gap: 1.75rem;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.right-col {
+  position: sticky;
+  top: 5.5rem;
+  max-height: calc(100vh - 6rem);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.month-bar {
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
 }
 
 .add-tenant-toggle {
   width: 100%;
+  min-height: 3rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  min-height: 3rem;
-  padding: 0.75rem 1rem;
-  background: var(--surface);
-  color: var(--slate);
-  border: 1.5px dashed var(--slate-muted);
-  border-radius: var(--radius);
-  font-family: 'Inter', sans-serif;
-  font-size: 0.95rem;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: transparent;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  color: var(--navy);
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
+  transition: background 180ms ease, border-color 180ms ease, transform 180ms ease;
 }
 
 .add-tenant-toggle:hover {
-  background: #eef3fa;
-  border-color: var(--slate);
+  background: var(--surface-accent);
+  border-color: var(--amber);
+  transform: translateY(-1px);
 }
 
 .add-tenant-icon {
-  font-size: 1.35rem;
-  font-weight: 400;
+  display: grid;
+  width: 1.5rem;
+  height: 1.5rem;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--amber);
+  color: #fff;
+  font-size: 1.15rem;
   line-height: 1;
 }
 
-.right-col {
+.app-footer {
+  width: min(1240px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 0 0 var(--space-6);
   display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  position: sticky;
-  top: 80px;
-  max-height: calc(100vh - 90px);
-  overflow-y: auto;
-  /* Prevent inner modals (position:fixed) from being clipped */
-  overflow-x: visible;
-  /* Scrollbar styling */
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
+  justify-content: space-between;
+  gap: var(--space-4);
+  color: var(--ink-faint);
+  font-size: 0.75rem;
 }
 
-.month-bar {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1rem 1.5rem;
-  box-shadow: var(--shadow);
-}
-
-/* Toast notification */
 .toast {
   position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  padding: 0.75rem 1.25rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.875rem;
-  font-weight: 500;
-  font-family: 'Inter', sans-serif;
+  right: var(--space-5);
+  bottom: var(--space-5);
+  z-index: var(--z-toast);
+  max-width: min(28rem, calc(100vw - 2rem));
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
-  z-index: 1000;
-  animation: slideUp 0.25s ease;
+  font-size: 0.85rem;
+  font-weight: 600;
+  animation: toast-in 220ms ease-out;
 }
 
-.toast-success {
-  background: var(--success-bg);
-  color: var(--success);
-  border: 1px solid #a7f3d0;
-}
+.toast-success { background: var(--success-bg); color: var(--success); border-color: color-mix(in srgb, var(--success) 30%, transparent); }
+.toast-error { background: var(--error-bg); color: var(--error); border-color: color-mix(in srgb, var(--error) 30%, transparent); }
 
-.toast-error {
-  background: var(--error-bg);
-  color: var(--error);
-  border: 1px solid #fecaca;
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(0.5rem); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 900px) {
-  .app-layout {
-    grid-template-columns: 1fr;
-  }
+  .app-layout { grid-template-columns: 1fr; }
   .right-col {
     position: static;
     max-height: none;
-    overflow-y: visible;
-    order: -1;
+    overflow: visible;
+    order: initial;
   }
 }
 
 @media (max-width: 640px) {
-  .app-main {
-    padding: 0.75rem 0.75rem 3rem;
-  }
-  .app-layout {
-    gap: 1rem;
-  }
-  .left-col,
-  .right-col {
-    gap: 1rem;
-  }
-  .right-col {
-    order: initial;
-  }
-  .toast {
-    left: 0.75rem;
-    right: 0.75rem;
-    bottom: 0.75rem;
-    text-align: center;
-  }
-}
-
-@media (max-width: 380px) {
-  .app-main {
-    padding: 0.75rem 0.75rem 2.5rem;
-  }
+  .app-main { width: min(100% - 1rem, 36rem); padding: var(--space-5) 0 var(--space-8); }
+  .app-layout, .left-col, .right-col { gap: var(--space-4); }
+  .month-bar { padding: var(--space-3) var(--space-4); }
+  .app-footer { width: calc(100% - 1rem); padding-bottom: var(--space-5); flex-direction: column; gap: var(--space-1); }
+  .toast { left: var(--space-3); right: var(--space-3); bottom: var(--space-3); max-width: none; text-align: center; }
 }

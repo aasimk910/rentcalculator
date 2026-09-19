@@ -59,13 +59,13 @@ function QuickBillModal({ tenant, month, onConfirm, onClose, saving }) {
 
   return (
     <div className="qb-backdrop" onClick={onClose}>
-      <div className="qb-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="qb-modal" role="dialog" aria-modal="true" aria-labelledby="quick-bill-title" onClick={(e) => e.stopPropagation()}>
         <div className="qb-header">
           <div>
-            <div className="qb-title">Calculate Bill</div>
+            <div className="qb-title" id="quick-bill-title">Calculate Bill</div>
             <div className="qb-subtitle">{tenant.name} · Room {tenant.roomNumber} · {month}</div>
           </div>
-          <button className="qb-close" onClick={onClose}>✕</button>
+          <button className="qb-close" onClick={onClose} aria-label="Close bill calculator">✕</button>
         </div>
 
         <div className="qb-prev-unit">
@@ -145,7 +145,11 @@ export default function TenantList({ tenants, selectedId, onSelect, onEdit, onDe
     return (
       <div className="tenant-list-card">
         <div className="list-header"><h2 className="list-title">Tenants</h2></div>
-        <div className="list-loading">Loading tenants…</div>
+        <div className="list-loading" aria-label="Loading tenants">
+          <span className="skeleton-line skeleton-title" />
+          <span className="skeleton-line" />
+          <span className="skeleton-line skeleton-short" />
+        </div>
       </div>
     );
   }
@@ -171,14 +175,18 @@ export default function TenantList({ tenants, selectedId, onSelect, onEdit, onDe
                 <li
                   key={t._id}
                   className={`tenant-item ${isSelected ? 'selected' : ''}`}
-                  onClick={() => onSelect(t)}
                 >
-                  <div className="tenant-item-main">
+                  <button
+                    className="tenant-item-main tenant-select-button"
+                    type="button"
+                    onClick={() => onSelect(t)}
+                    aria-pressed={isSelected}
+                  >
                     <div className="tenant-item-info">
                       <span className="tenant-name">{t.name}</span>
                       <span className="tenant-room">Room {t.roomNumber}</span>
                     </div>
-                  </div>
+                  </button>
                   <div className="tenant-item-actions">
                     <button
                       className="btn-action btn-bill"

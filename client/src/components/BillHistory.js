@@ -53,13 +53,13 @@ function BillDetailModal({ bill, tenant, onClose, onBillUpdated }) {
 
   return (
     <div className="bh-modal-overlay" onClick={onClose}>
-      <div className="bh-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="bh-modal" role="dialog" aria-modal="true" aria-labelledby="bill-detail-title" onClick={(e) => e.stopPropagation()}>
         <div className="bh-modal-header">
           <div>
-            <h3 className="bh-modal-title">{bill.month}</h3>
+            <h3 className="bh-modal-title" id="bill-detail-title">{bill.month}</h3>
             <p className="bh-modal-sub">{tenant.name} · Room {tenant.roomNumber}</p>
           </div>
-          <button className="bh-modal-close" onClick={onClose}>✕</button>
+          <button className="bh-modal-close" onClick={onClose} aria-label="Close bill details">✕</button>
         </div>
 
         <div className="bh-modal-rows">
@@ -171,6 +171,14 @@ export default function BillHistory({ history, tenant, onBillUpdate }) {
               className="history-item history-item-clickable"
               key={bill._id}
               onClick={() => setSelectedBill(bill)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setSelectedBill(bill);
+                }
+              }}
+              role="button"
+              tabIndex={0}
             >
               <div className="history-item-top">
                 <span className="history-month">{bill.month}</span>

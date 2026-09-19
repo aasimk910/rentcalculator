@@ -22,6 +22,16 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [toast, setToast] = useState(null);
+  const [theme, setTheme] = useState(() => localStorage.getItem('rent-calculator-theme') || 'system');
+
+  useEffect(() => {
+    if (theme === 'system') {
+      document.documentElement.removeAttribute('data-theme');
+    } else {
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+    localStorage.setItem('rent-calculator-theme', theme);
+  }, [theme]);
 
   const showToast = (msg, type = 'success') => {
     setToast({ msg, type });
@@ -103,8 +113,9 @@ export default function App() {
 
   return (
     <div className="app">
-      <Header />
-      <main className="app-main">
+      <a className="skip-link" href="#main-content">Skip to main content</a>
+      <Header theme={theme} onThemeChange={setTheme} />
+      <main className="app-main" id="main-content">
         <div className="app-layout">
           {/* Left column */}
           <div className="left-col">
@@ -161,6 +172,11 @@ export default function App() {
           </div>
         </div>
       </main>
+
+      <footer className="app-footer">
+        <span>Rent Calculator</span>
+        <span>Built for clear monthly billing</span>
+      </footer>
 
       {toast && (
         <div className={`toast toast-${toast.type}`}>
