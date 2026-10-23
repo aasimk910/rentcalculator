@@ -52,24 +52,39 @@ async function main() {
   workbook.creator = 'Rent Calculator';
   workbook.created = new Date();
 
-  addSheet(workbook, 'Tenants', [
-    { header: 'Name', key: 'name', width: 24 },
-    { header: 'Room', key: 'roomNumber', width: 10 },
-    { header: 'WhatsApp', key: 'phone', width: 16 },
-    { header: 'Rent', key: 'rent', width: 14, style: { numFmt: NPR } },
-    { header: 'Water', key: 'waterBill', width: 12, style: { numFmt: NPR } },
-    { header: 'Wastage', key: 'wastageBill', width: 12, style: { numFmt: NPR } },
-    { header: 'Last reading (kWh)', key: 'previousUnit', width: 18 },
-    { header: 'Bills', key: 'bills', width: 8 },
-    { header: 'Total billed', key: 'totalBilled', width: 16, style: { numFmt: NPR } },
-    { header: 'Status', key: 'status', width: 10 },
-    { header: 'Added', key: 'createdAt', width: 12, style: { numFmt: 'yyyy-mm-dd' } },
-  ], tenants.map((t) => ({
+  // One column per billed month, so each tenant row reads like a ledger
+  const months = [...summary.keys()];
+  const tenantRows = tenants.map((t) => ({
     ...t,
+    ...Object.fromEntries(t.billHistory.map((b) => [b.month, b.totalBill])),
     bills: t.billHistory.length,
     totalBilled: t.billHistory.reduce((sum, b) => sum + b.totalBill, 0),
     status: t.deletedAt ? 'Deleted' : 'Active',
-  })));
+  }));
+
+  const tenantSheet = addSheet(workbook, 'Tenants', [
+    { header: 'Name', key: 'name', width: 24 },
+    { header: 'Room', key: 'roomNumber', width: 8 },
+    { header: 'WhatsApp', key: 'phone', width: 20 },
+    { header: 'Rent', key: 'rent', width: 14, style: { numFmt: NPR } },
+    { header: 'Water', key: 'waterBill', width: 12, style: { numFmt: NPR } },
+    { header: 'Wastage', key: 'wastageBill', width: 12, style: { numFmt: NPR } },
+    { header: 'Last reading (kWh)', key: 'previousUnit', width: 20 },
+    { header: 'Status', key: 'status', width: 10 },
+    { header: 'Added', key: 'createdAt', width: 12, style: { numFmt: 'yyyy-mm-dd' } },
+    ...months.map((m) => ({ header: m, key: m, width: 16, style: { numFmt: NPR } })),
+    { header: 'Bills', key: 'bills', width: 8 },
+    { header: 'Total billed', key: 'totalBilled', width: 16, style: { numFmt: NPR } },
+  ], tenantRows);
+
+  const totals = tenantSheet.addRow({
+    name: 'Total',
+    ...Object.fromEntries(months.map((m) => [m, summary.get(m).totalBill])),
+    bills: bills.length,
+    totalBilled: bills.reduce((sum, b) => sum + b.totalBill, 0),
+  });
+  totals.font = { bold: true };
+  totals.border = { top: { style: 'thin' } };
 
   addSheet(workbook, 'Bills', [
     { header: 'Month', key: 'month', width: 16 },
