@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import './BillHistory.css';
 import Icon from './Icon';
 import { whatsAppUrl } from '../billing';
@@ -34,6 +35,12 @@ function BillDetailModal({ bill, tenant, onClose, onBillUpdated }) {
     }
   };
 
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
   const cancelEdit = () => {
     setIsEditing(false);
     setEditError('');
@@ -41,7 +48,8 @@ function BillDetailModal({ bill, tenant, onClose, onBillUpdated }) {
     setEditCurr(String(bill.currentUnit));
   };
 
-  return (
+  // Portal to <body> so no panel's overflow or stacking context can clip the dialog
+  return createPortal(
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal" role="dialog" aria-modal="true" aria-labelledby="bill-detail-title" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
@@ -127,7 +135,8 @@ function BillDetailModal({ bill, tenant, onClose, onBillUpdated }) {
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
