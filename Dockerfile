@@ -5,6 +5,8 @@ COPY client/package*.json ./
 # The client lock file drifts from package.json (Vercel uses npm install too)
 RUN npm install --no-audit --no-fund
 COPY client/ ./
+ARG REACT_APP_QR_URL
+ENV REACT_APP_QR_URL=$REACT_APP_QR_URL
 RUN npm run build
 
 FROM node:22-alpine

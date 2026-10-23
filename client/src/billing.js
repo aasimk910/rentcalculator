@@ -1,6 +1,10 @@
 export const ELECTRICITY_RATE = 12; // NPR per unit — keep in sync with server/billing.js
 
-const QR_CODE_URL = `${window.location.origin}/WhatsApp%20Image%202026-04-17%20at%208.38.49%20AM.jpeg`;
+// Tenants open this link, so it must be public. The self-hosted app is tailnet-only,
+// so its build sets REACT_APP_QR_URL to a public copy of the image.
+const QR_CODE_URL =
+  process.env.REACT_APP_QR_URL ||
+  `${window.location.origin}/WhatsApp%20Image%202026-04-17%20at%208.38.49%20AM.jpeg`;
 
 export function calculateBill({ rent, waterBill, wastageBill, previousUnit, currentUnit }) {
   const consumedUnits = currentUnit - previousUnit;

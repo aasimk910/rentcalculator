@@ -1,7 +1,11 @@
 # Self-hosted stack: app (API + client) and MongoDB. Data lives in the mongo-data volume.
 services:
   app:
-    build: .
+    build:
+      context: .
+      args:
+        # Public copy of the payment QR (the app itself is tailnet-only)
+        REACT_APP_QR_URL: https://raw.githubusercontent.com/aasimk910/rentcalculator/main/client/public/WhatsApp%20Image%202026-04-17%20at%208.38.49%20AM.jpeg
     restart: unless-stopped
     environment:
       MONGO_URI: mongodb://mongo:27017/rentcalculator
