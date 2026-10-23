@@ -11,3 +11,4 @@ build/
 backups/
 backup.log
 *.archive
+exports/

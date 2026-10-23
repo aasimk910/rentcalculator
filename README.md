@@ -62,6 +62,7 @@ docker compose up -d --build     # app on http://127.0.0.1:8090
 - MongoDB is pinned to `mongo:8.2`: `mongo:8` (8.3) and 8.0 refuse to start on Linux 6.19+ ([SERVER-121912](https://jira.mongodb.org/browse/SERVER-121912)).
 - The app has no login. Keep it private, e.g. `tailscale serve --bg --https=10000 http://127.0.0.1:8090`.
 - `scripts/backup.sh` writes a gzipped `mongodump` to `/mnt/storage/backups/rentcalculator` (falls back to `./backups`) and keeps the newest 12. It runs monthly from cron: `15 0 1 * * …/scripts/backup.sh`.
+- The same run writes `exports/rent-records.xlsx` (tenants, bills, monthly summary), replacing the previous export.
 - Restore a backup: `docker compose exec -T mongo mongorestore --archive --gzip --drop < backups/rentcalculator-YYYY-MM-DD.archive.gz`
 
 To deploy changes, copy the repo to the server and rerun `docker compose up -d --build`.
