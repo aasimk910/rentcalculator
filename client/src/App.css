@@ -1,7 +1,7 @@
 .app {
   min-height: 100vh;
   background:
-    radial-gradient(circle at 12% 0%, rgba(199, 119, 24, 0.08), transparent 28rem),
+    radial-gradient(circle at 12% 0%, var(--app-glow), transparent 28rem),
     var(--bg);
 }
 
@@ -72,8 +72,8 @@
   height: 1.5rem;
   place-items: center;
   border-radius: 50%;
-  background: var(--amber);
-  color: #fff;
+  background: var(--accent-fill);
+  color: var(--on-accent);
   font-size: 1.15rem;
   line-height: 1;
 }

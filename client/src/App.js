@@ -7,6 +7,10 @@ import MonthSelector from './components/MonthSelector';
 import { getTenants, createTenant, updateTenant, deleteTenant, restoreTenant, generateBill } from './api';
 import './App.css';
 
+const THEME_KEY = 'rent-calculator-theme';
+const THEME_COLORS = { light: '#ffffff', dark: '#19232c' };
+const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
 const defaultMonth = () => {
   const d = new Date();
   return `${d.toLocaleString('default', { month: 'long' })} ${d.getFullYear()}`;
@@ -21,16 +25,32 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [toast, setToast] = useState(null);
-  const [theme, setTheme] = useState(() => localStorage.getItem('rent-calculator-theme') || 'system');
+  const [themePref, setThemePref] = useState(() => localStorage.getItem(THEME_KEY) || 'system');
+  const [systemDark, setSystemDark] = useState(darkQuery.matches);
+  const systemTheme = systemDark ? 'dark' : 'light';
+  const theme = themePref === 'system' ? systemTheme : themePref;
 
   useEffect(() => {
-    if (theme === 'system') {
-      document.documentElement.removeAttribute('data-theme');
-    } else {
-      document.documentElement.setAttribute('data-theme', theme);
-    }
-    localStorage.setItem('rent-calculator-theme', theme);
+    const onChange = (e) => setSystemDark(e.matches);
+    darkQuery.addEventListener('change', onChange);
+    return () => darkQuery.removeEventListener('change', onChange);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLORS[theme]);
   }, [theme]);
+
+  // Choosing the theme the OS already uses goes back to following the OS.
+  const changeTheme = (next) => {
+    if (next === systemTheme) {
+      setThemePref('system');
+      localStorage.removeItem(THEME_KEY);
+    } else {
+      setThemePref(next);
+      localStorage.setItem(THEME_KEY, next);
+    }
+  };
 
   const toastTimer = useRef(null);
 
@@ -129,7 +149,7 @@ export default function App() {
   return (
     <div className="app">
       <a className="skip-link" href="#main-content">Skip to main content</a>
-      <Header theme={theme} onThemeChange={setTheme} />
+      <Header theme={theme} onThemeChange={changeTheme} />
       <main className="app-main" id="main-content">
         <div className="app-layout">
           {/* Left column */}
