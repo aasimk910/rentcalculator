@@ -1,5 +1,5 @@
 #!/bin/sh
-# Daily MongoDB dump for the self-hosted stack, keeping 30 days.
+# Monthly MongoDB dump for the self-hosted stack, keeping the newest 12 (one year).
 # Dumps go to /mnt/storage/backups so the restic off-site job picks them up.
 set -eu
 cd "$(dirname "$0")/.."
@@ -15,5 +15,5 @@ umask 077
 OUT="$DIR/rentcalculator-$(date +%F).archive.gz"
 docker compose exec -T mongo mongodump --db rentcalculator --archive --gzip --quiet > "$OUT.tmp"
 mv "$OUT.tmp" "$OUT"
-find "$DIR" -name 'rentcalculator-*.archive.gz' -mtime +30 -delete
+ls -1t "$DIR"/rentcalculator-*.archive.gz | tail -n +"$((${KEEP:-12} + 1))" | xargs -r rm --
 echo "$(date -Is) backup written: $OUT"
