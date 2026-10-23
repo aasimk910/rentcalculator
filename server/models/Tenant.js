@@ -24,6 +24,8 @@ const tenantSchema = new mongoose.Schema(
     previousUnit: { type: Number, required: true, min: 0 },
     currentUnit: { type: Number, required: true, min: 0 },
     billHistory: [billHistorySchema],
+    // Set when the tenant is deleted; deleted tenants are hidden, not erased
+    deletedAt: { type: Date, default: null },
   },
   { timestamps: true }
 );

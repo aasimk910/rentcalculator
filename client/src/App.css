@@ -106,6 +106,7 @@
 
 .toast-success { background: var(--success-bg); color: var(--success); border-color: color-mix(in srgb, var(--success) 30%, transparent); }
 .toast-error { background: var(--error-bg); color: var(--error); border-color: color-mix(in srgb, var(--error) 30%, transparent); }
+.toast-action { margin-left: var(--space-3); padding: 0; border: 0; background: none; color: inherit; cursor: pointer; font: inherit; text-decoration: underline; }
 
 @keyframes toast-in {
   from { opacity: 0; transform: translateY(0.5rem); }

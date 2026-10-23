@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Header from './components/Header';
 import TenantForm from './components/TenantForm';
 import TenantList from './components/TenantList';
 import BillHistory from './components/BillHistory';
 import MonthSelector from './components/MonthSelector';
-import { getTenants, createTenant, updateTenant, deleteTenant, generateBill } from './api';
+import { getTenants, createTenant, updateTenant, deleteTenant, restoreTenant, generateBill } from './api';
 import './App.css';
 
 const defaultMonth = () => {
@@ -32,9 +32,13 @@ export default function App() {
     localStorage.setItem('rent-calculator-theme', theme);
   }, [theme]);
 
-  const showToast = (msg, type = 'success') => {
-    setToast({ msg, type });
-    setTimeout(() => setToast(null), 3000);
+  const toastTimer = useRef(null);
+
+  // action: optional { label, onClick } shown as a button in the toast
+  const showToast = (msg, type = 'success', action = null) => {
+    clearTimeout(toastTimer.current);
+    setToast({ msg, type, action });
+    toastTimer.current = setTimeout(() => setToast(null), action ? 8000 : 3000);
   };
 
   const fetchTenants = useCallback(async () => {
@@ -76,15 +80,25 @@ export default function App() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this tenant? This cannot be undone.')) return;
+    if (!window.confirm('Delete this tenant?')) return;
     try {
       await deleteTenant(id);
       setTenants((prev) => prev.filter((t) => t._id !== id));
       if (selectedTenant?._id === id) setSelectedTenant(null);
       if (editingTenant?._id === id) setEditingTenant(null);
-      showToast('Tenant deleted');
+      showToast('Tenant deleted', 'success', { label: 'Undo', onClick: () => handleRestore(id) });
     } catch (err) {
       showToast('Failed to delete tenant', 'error');
+    }
+  };
+
+  const handleRestore = async (id) => {
+    try {
+      const { data } = await restoreTenant(id);
+      setTenants((prev) => [data, ...prev].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+      showToast(`${data.name} restored`);
+    } catch (err) {
+      showToast('Failed to restore tenant', 'error');
     }
   };
 
@@ -97,8 +111,10 @@ export default function App() {
       setTenants((prev) => prev.map((t) => (t._id === id ? updatedTenant : t)));
       setSelectedTenant(updatedTenant);
       showToast(`Bill saved. Previous unit updated to ${updatedTenant.previousUnit} kWh for next month.`);
+      return true;
     } catch (err) {
       showToast(err.response?.data?.message || 'Failed to save bill', 'error');
+      return false;
     } finally {
       setGenerating(false);
     }
@@ -174,6 +190,11 @@ export default function App() {
       {toast && (
         <div className={`toast toast-${toast.type}`}>
           {toast.type === 'success' ? '✓' : '✕'} {toast.msg}
+          {toast.action && (
+            <button className="toast-action" type="button" onClick={() => { setToast(null); toast.action.onClick(); }}>
+              {toast.action.label}
+            </button>
+          )}
         </div>
       )}
     </div>

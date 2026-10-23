@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './TenantForm.css';
-import { ELECTRICITY_RATE } from '../constants';
+import { ELECTRICITY_RATE } from '../billing';
 
 const defaultForm = {
   name: '',

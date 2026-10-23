@@ -1,40 +1,16 @@
 import React, { useState } from 'react';
 import './TenantList.css';
-import { ELECTRICITY_RATE } from '../constants';
-
-const QR_CODE_URL = `${window.location.origin}/WhatsApp%20Image%202026-04-17%20at%208.38.49%20AM.jpeg`;
-
-function buildWhatsAppMessage(tenant, month, unitNum, consumed, electricityBill, total) {
-  return (
-    `*Rent Bill - ${month}*\n` +
-    `Tenant: ${tenant.name}\n` +
-    `Room: ${tenant.roomNumber}\n` +
-    `\n` +
-    `Rent:         NPR ${tenant.rent.toLocaleString()}\n` +
-    `Water:        NPR ${tenant.waterBill.toLocaleString()}\n` +
-    `Wastage:      NPR ${tenant.wastageBill.toLocaleString()}\n` +
-    `Electricity:  NPR ${electricityBill.toLocaleString()}\n` +
-    `              Previous month: ${tenant.previousUnit} units\n` +
-    `              Current month: ${unitNum} units\n` +
-    `              Consumed: ${consumed} units @ NPR ${ELECTRICITY_RATE}\n` +
-    `─────────────────────\n` +
-    `*Total: NPR ${total.toLocaleString()}*\n` +
-    `\n💳 Scan QR to pay:\n${QR_CODE_URL}\n` +
-    `\nPlease pay by the end of the month. Thank you!`
-  );
-}
+import { ELECTRICITY_RATE, calculateBill, whatsAppUrl } from '../billing';
 
 function QuickBillModal({ tenant, month, onConfirm, onClose, saving }) {
   const [unit, setUnit] = useState('');
   const [error, setError] = useState('');
 
   const unitNum = unit !== '' && !isNaN(unit) ? Number(unit) : null;
-  const consumed = unitNum !== null ? unitNum - tenant.previousUnit : null;
-  const electricityBill = consumed !== null ? consumed * ELECTRICITY_RATE : null;
-  const total =
-    consumed !== null
-      ? tenant.rent + tenant.waterBill + tenant.wastageBill + electricityBill
-      : null;
+  const bill = unitNum !== null ? calculateBill({ ...tenant, currentUnit: unitNum }) : null;
+  const consumed = bill?.consumedUnits ?? null;
+  const electricityBill = bill?.electricityBill ?? null;
+  const total = bill?.totalBill ?? null;
 
   const validate = () => {
     if (unit === '' || isNaN(unit) || Number(unit) < 0) {
@@ -52,9 +28,27 @@ function QuickBillModal({ tenant, month, onConfirm, onClose, saving }) {
   const handleWhatsApp = async (e) => {
     e.preventDefault();
     if (!validate()) return;
-    const waUrl = `https://wa.me/${tenant.phone.replace(/\D/g, '')}?text=${encodeURIComponent(buildWhatsAppMessage(tenant, month, unitNum, consumed, electricityBill, total))}`;
-    await onConfirm(tenant._id, month, Number(unit));
-    window.open(waUrl, '_blank', 'noopener,noreferrer');
+    const waUrl = whatsAppUrl(tenant, {
+      month,
+      rent: tenant.rent,
+      waterBill: tenant.waterBill,
+      wastageBill: tenant.wastageBill,
+      previousUnit: tenant.previousUnit,
+      currentUnit: unitNum,
+      ...bill,
+    });
+    // Open the tab during the click so browsers don't block it as a popup,
+    // then only point it at WhatsApp once the bill has actually been saved
+    const waWindow = window.open('', '_blank');
+    const saved = await onConfirm(tenant._id, month, unitNum);
+    if (!saved) {
+      waWindow?.close();
+    } else if (waWindow) {
+      waWindow.opener = null;
+      waWindow.location.href = waUrl;
+    } else {
+      window.location.href = waUrl;
+    }
   };
 
   return (
@@ -117,7 +111,7 @@ function QuickBillModal({ tenant, month, onConfirm, onClose, saving }) {
 
         <div className="qb-actions">
           <button type="button" className="btn-ghost" onClick={onClose}>Cancel</button>
-          {consumed !== null && consumed >= 0 && tenant.phone && (
+          {tenant.phone ? (
             <button
               type="button"
               className="btn-whatsapp"
@@ -126,8 +120,15 @@ function QuickBillModal({ tenant, month, onConfirm, onClose, saving }) {
             >
               {saving ? 'Saving…' : '📲 Send WhatsApp & Save'}
             </button>
+          ) : (
+            <button type="button" className="btn-whatsapp" disabled title="Add a WhatsApp number to this tenant to send the bill">
+              📲 Send WhatsApp (no phone)
+            </button>
           )}
         </div>
+        {!tenant.phone && (
+          <p className="error-msg">No WhatsApp number saved for {tenant.name}. Use ✏️ Edit to add one.</p>
+        )}
       </div>
     </div>
   );
@@ -137,8 +138,9 @@ export default function TenantList({ tenants, selectedId, onSelect, onEdit, onDe
   const [billTarget, setBillTarget] = useState(null); // tenant for quick bill modal
 
   const handleConfirm = async (id, billMonth, currentUnit) => {
-    await onGenerateBill(id, billMonth, currentUnit);
-    setBillTarget(null);
+    const saved = await onGenerateBill(id, billMonth, currentUnit);
+    if (saved) setBillTarget(null);
+    return saved;
   };
 
   if (loading) {

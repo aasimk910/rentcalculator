@@ -1,21 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const Tenant = require('../models/Tenant');
+const { calculateBill } = require('../billing');
 
-const ELECTRICITY_RATE = 12; // NPR per unit
-
-function calculateBill(tenant) {
-  const consumed = tenant.currentUnit - tenant.previousUnit;
-  const electricityBill = consumed * ELECTRICITY_RATE;
-  const totalBill =
-    tenant.rent + tenant.waterBill + tenant.wastageBill + electricityBill;
-  return { consumedUnits: consumed, electricityBill, totalBill };
-}
+// Deleted tenants are kept with a deletedAt date and hidden everywhere else
+const findActiveTenant = (id) => Tenant.findOne({ _id: id, deletedAt: null });
 
 // GET all tenants
 router.get('/', async (req, res) => {
   try {
-    const tenants = await Tenant.find().sort({ createdAt: -1 });
+    const tenants = await Tenant.find({ deletedAt: null }).sort({ createdAt: -1 });
     res.json(tenants);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -25,7 +19,7 @@ router.get('/', async (req, res) => {
 // GET single tenant
 router.get('/:id', async (req, res) => {
   try {
-    const tenant = await Tenant.findById(req.params.id);
+    const tenant = await findActiveTenant(req.params.id);
     if (!tenant) return res.status(404).json({ message: 'Tenant not found' });
     res.json(tenant);
   } catch (err) {
@@ -35,11 +29,11 @@ router.get('/:id', async (req, res) => {
 
 // POST create tenant
 router.post('/', async (req, res) => {
-  const { name, roomNumber, rent, waterBill, wastageBill, currentUnit } = req.body;
+  const { name, roomNumber, phone, rent, waterBill, wastageBill, currentUnit } = req.body;
   // previousUnit is set manually in DB by the landlord; default to currentUnit if not provided
   const previousUnit = req.body.previousUnit !== undefined ? req.body.previousUnit : currentUnit;
 
-  const tenant = new Tenant({ name, roomNumber, rent, waterBill, wastageBill, previousUnit, currentUnit });
+  const tenant = new Tenant({ name, roomNumber, phone: phone || '', rent, waterBill, wastageBill, previousUnit, currentUnit });
 
   try {
     const saved = await tenant.save();
@@ -54,7 +48,7 @@ router.put('/:id', async (req, res) => {
   const { name, roomNumber, phone, rent, waterBill, wastageBill, previousUnit, currentUnit } = req.body;
 
   try {
-    const existing = await Tenant.findById(req.params.id);
+    const existing = await findActiveTenant(req.params.id);
     if (!existing) return res.status(404).json({ message: 'Tenant not found' });
 
     const nextPreviousUnit = previousUnit !== undefined ? previousUnit : existing.previousUnit;
@@ -67,8 +61,8 @@ router.put('/:id', async (req, res) => {
       return res.status(400).json({ message: `Current unit must be >= previous unit (${nextPreviousUnit})` });
     }
 
-    const tenant = await Tenant.findByIdAndUpdate(
-      req.params.id,
+    const tenant = await Tenant.findOneAndUpdate(
+      { _id: req.params.id, deletedAt: null },
       { name, roomNumber, phone: phone || '', rent, waterBill, wastageBill, previousUnit: nextPreviousUnit, currentUnit },
       { new: true, runValidators: true }
     );
@@ -79,12 +73,31 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// DELETE tenant
+// DELETE tenant (hides it; can be undone with POST /:id/restore)
 router.delete('/:id', async (req, res) => {
   try {
-    const tenant = await Tenant.findByIdAndDelete(req.params.id);
+    const tenant = await Tenant.findOneAndUpdate(
+      { _id: req.params.id, deletedAt: null },
+      { deletedAt: new Date() },
+      { new: true }
+    );
     if (!tenant) return res.status(404).json({ message: 'Tenant not found' });
     res.json({ message: 'Tenant deleted' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// POST restore a deleted tenant
+router.post('/:id/restore', async (req, res) => {
+  try {
+    const tenant = await Tenant.findOneAndUpdate(
+      { _id: req.params.id, deletedAt: { $ne: null } },
+      { deletedAt: null },
+      { new: true }
+    );
+    if (!tenant) return res.status(404).json({ message: 'Deleted tenant not found' });
+    res.json(tenant);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -93,7 +106,7 @@ router.delete('/:id', async (req, res) => {
 // POST save bill to history
 router.post('/:id/generate-bill', async (req, res) => {
   try {
-    const tenant = await Tenant.findById(req.params.id);
+    const tenant = await findActiveTenant(req.params.id);
     if (!tenant) return res.status(404).json({ message: 'Tenant not found' });
 
     const { month, currentUnit } = req.body;
@@ -140,7 +153,7 @@ router.post('/:id/generate-bill', async (req, res) => {
 // PATCH correct meter readings for a specific historical bill
 router.patch('/:id/bills/:billId', async (req, res) => {
   try {
-    const tenant = await Tenant.findById(req.params.id);
+    const tenant = await findActiveTenant(req.params.id);
     if (!tenant) return res.status(404).json({ message: 'Tenant not found' });
 
     const bill = tenant.billHistory.id(req.params.billId);
@@ -151,14 +164,11 @@ router.patch('/:id/bills/:billId', async (req, res) => {
     if (previousUnit !== undefined) bill.previousUnit = Number(previousUnit);
     if (currentUnit !== undefined) bill.currentUnit = Number(currentUnit);
 
-    const consumed = bill.currentUnit - bill.previousUnit;
-    if (consumed < 0) {
+    if (bill.currentUnit < bill.previousUnit) {
       return res.status(400).json({ message: 'Current unit must be >= previous unit' });
     }
 
-    bill.consumedUnits = consumed;
-    bill.electricityBill = consumed * ELECTRICITY_RATE;
-    bill.totalBill = bill.rent + bill.waterBill + bill.wastageBill + bill.electricityBill;
+    Object.assign(bill, calculateBill(bill));
 
     await tenant.save();
     res.json({ message: 'Bill corrected', tenant });
@@ -170,7 +180,7 @@ router.patch('/:id/bills/:billId', async (req, res) => {
 // GET monthly history for a specific tenant
 router.get('/:id/monthly-history', async (req, res) => {
   try {
-    const tenant = await Tenant.findById(req.params.id);
+    const tenant = await findActiveTenant(req.params.id);
     if (!tenant) return res.status(404).json({ message: 'Tenant not found' });
 
     const billHistory = tenant.billHistory
@@ -213,7 +223,7 @@ router.get('/:id/monthly-history', async (req, res) => {
 // GET monthly summary for all tenants
 router.get('/summary/all-months', async (req, res) => {
   try {
-    const tenants = await Tenant.find().select('name roomNumber billHistory');
+    const tenants = await Tenant.find({ deletedAt: null }).select('name roomNumber billHistory');
     
     const allMonthsSummary = tenants.map((tenant) => ({
       tenantId: tenant._id,
@@ -236,64 +246,6 @@ router.get('/summary/all-months', async (req, res) => {
         grandTotalCollected: grandTotal,
       },
       tenantsSummary: allMonthsSummary,
-    });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// POST manual trigger for auto-saving monthly bills
-router.post('/auto-save/monthly', async (req, res) => {
-  try {
-    const now = new Date();
-    const monthName = now.toLocaleString('default', { month: 'long', year: 'numeric' });
-    
-    const tenants = await Tenant.find();
-    let savedCount = 0;
-    let skippedCount = 0;
-    const errors = [];
-    
-    for (const tenant of tenants) {
-      // Check if bill already exists for this month
-      const billExists = tenant.billHistory.some((b) => b.month === monthName);
-      
-      if (billExists) {
-        skippedCount++;
-        continue;
-      }
-      
-      try {
-        const consumed = tenant.currentUnit - tenant.previousUnit;
-        const electricityBill = consumed * ELECTRICITY_RATE;
-        const totalBill = tenant.rent + tenant.waterBill + tenant.wastageBill + electricityBill;
-        
-        tenant.billHistory.push({
-          month: monthName,
-          rent: tenant.rent,
-          waterBill: tenant.waterBill,
-          wastageBill: tenant.wastageBill,
-          previousUnit: tenant.previousUnit,
-          currentUnit: tenant.currentUnit,
-          consumedUnits: consumed,
-          electricityBill,
-          totalBill,
-        });
-        
-        // Roll over for next month
-        tenant.previousUnit = tenant.currentUnit;
-        await tenant.save();
-        savedCount++;
-      } catch (err) {
-        errors.push({ tenant: tenant.name, error: err.message });
-      }
-    }
-    
-    res.json({
-      message: 'Monthly bills auto-saved',
-      month: monthName,
-      savedCount,
-      skippedCount,
-      errors: errors.length > 0 ? errors : null,
     });
   } catch (err) {
     res.status(500).json({ message: err.message });

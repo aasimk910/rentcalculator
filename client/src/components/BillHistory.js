@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './BillHistory.css';
-import { ELECTRICITY_RATE } from '../constants';
+import { whatsAppUrl } from '../billing';
 import { updateBill } from '../api';
 
 function BillDetailModal({ bill, tenant, onClose, onBillUpdated }) {
@@ -31,25 +31,6 @@ function BillDetailModal({ bill, tenant, onClose, onBillUpdated }) {
       setSaving(false);
     }
   };
-
-  const qrCodeUrl = `${window.location.origin}/WhatsApp%20Image%202026-04-17%20at%208.38.49%20AM.jpeg`;
-
-  const whatsappMessage =
-    `*Rent Bill - ${bill.month}*\n` +
-    `Tenant: ${tenant.name}\n` +
-    `Room: ${tenant.roomNumber}\n` +
-    `\n` +
-    `Rent:         NPR ${bill.rent.toLocaleString()}\n` +
-    `Water:        NPR ${bill.waterBill.toLocaleString()}\n` +
-    `Wastage:      NPR ${bill.wastageBill.toLocaleString()}\n` +
-    `Electricity:  NPR ${bill.electricityBill.toLocaleString()}\n` +
-    `              Previous month: ${bill.previousUnit} units\n` +
-    `              Current month: ${bill.currentUnit} units\n` +
-    `              Consumed: ${bill.consumedUnits} units @ NPR ${ELECTRICITY_RATE}\n` +
-    `─────────────────────\n` +
-    `*Total: NPR ${bill.totalBill.toLocaleString()}*\n` +
-    `\n💳 Scan QR to pay:\n${qrCodeUrl}\n` +
-    `\nThank you!`;
 
   return (
     <div className="bh-modal-overlay" onClick={onClose}>
@@ -137,7 +118,7 @@ function BillDetailModal({ bill, tenant, onClose, onBillUpdated }) {
         {tenant.phone && (
           <a
             className="bh-whatsapp-btn"
-            href={`https://wa.me/${tenant.phone.replace(/\D/g, '')}?text=${encodeURIComponent(whatsappMessage)}`}
+            href={whatsAppUrl(tenant, bill)}
             target="_blank"
             rel="noopener noreferrer"
           >
