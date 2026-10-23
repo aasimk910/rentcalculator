@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import './BillHistory.css';
+import Icon from './Icon';
 import { whatsAppUrl } from '../billing';
 import { updateBill } from '../api';
+import { npr } from '../format';
 
 function BillDetailModal({ bill, tenant, onClose, onBillUpdated }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -32,56 +34,59 @@ function BillDetailModal({ bill, tenant, onClose, onBillUpdated }) {
     }
   };
 
+  const cancelEdit = () => {
+    setIsEditing(false);
+    setEditError('');
+    setEditPrev(String(bill.previousUnit));
+    setEditCurr(String(bill.currentUnit));
+  };
+
   return (
-    <div className="bh-modal-overlay" onClick={onClose}>
-      <div className="bh-modal" role="dialog" aria-modal="true" aria-labelledby="bill-detail-title" onClick={(e) => e.stopPropagation()}>
-        <div className="bh-modal-header">
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal" role="dialog" aria-modal="true" aria-labelledby="bill-detail-title" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
           <div>
-            <h3 className="bh-modal-title" id="bill-detail-title">{bill.month}</h3>
-            <p className="bh-modal-sub">{tenant.name} · Room {tenant.roomNumber}</p>
+            <h3 className="modal-title" id="bill-detail-title">{bill.month}</h3>
+            <p className="modal-sub">{tenant.name} · Room {tenant.roomNumber}</p>
           </div>
-          <button className="bh-modal-close" onClick={onClose} aria-label="Close bill details">✕</button>
+          <button className="icon-btn" type="button" onClick={onClose} aria-label="Close bill details">
+            <Icon name="x" />
+          </button>
         </div>
 
-        <div className="bh-modal-rows">
-          <div className="bh-modal-row">
-            <span>🏠 Monthly Rent</span>
-            <span className="mono">NPR {bill.rent.toLocaleString()}</span>
-          </div>
-          <div className="bh-modal-row">
-            <span>💧 Water Bill</span>
-            <span className="mono">NPR {bill.waterBill.toLocaleString()}</span>
-          </div>
-          <div className="bh-modal-row">
-            <span>🗑️ Wastage / Garbage</span>
-            <span className="mono">NPR {bill.wastageBill.toLocaleString()}</span>
-          </div>
-          <div className="bh-modal-row">
-            <span>⚡ Electricity
-              {!isEditing && (
-                <span className="bh-units"> ({bill.previousUnit} → {bill.currentUnit} = {bill.consumedUnits} units)</span>
-              )}
-            </span>
-            <span className="mono">NPR {bill.electricityBill.toLocaleString()}</span>
-          </div>
+        <div className="modal-body">
+          <dl className="bh-rows">
+            <div className="bh-row"><dt>Rent</dt><dd className="num">{npr(bill.rent)}</dd></div>
+            <div className="bh-row"><dt>Water</dt><dd className="num">{npr(bill.waterBill)}</dd></div>
+            <div className="bh-row"><dt>Wastage</dt><dd className="num">{npr(bill.wastageBill)}</dd></div>
+            <div className="bh-row">
+              <dt>
+                Electricity
+                {!isEditing && (
+                  <span className="bh-units num">{bill.previousUnit} → {bill.currentUnit} kWh · {bill.consumedUnits} units</span>
+                )}
+              </dt>
+              <dd className="num">{npr(bill.electricityBill)}</dd>
+            </div>
+          </dl>
 
           {isEditing && (
             <div className="bh-edit-row">
-              <label className="bh-edit-label">
-                Previous unit
+              <label className="field">
+                <span className="field-label">Previous reading</span>
                 <input
-                  className="bh-edit-input"
+                  className="input num"
                   type="number"
                   min="0"
                   value={editPrev}
                   onChange={(e) => { setEditPrev(e.target.value); setEditError(''); }}
                 />
               </label>
-              <span className="bh-edit-arrow">→</span>
-              <label className="bh-edit-label">
-                Current unit
+              <span className="bh-edit-arrow" aria-hidden="true">→</span>
+              <label className="field">
+                <span className="field-label">Current reading</span>
                 <input
-                  className="bh-edit-input"
+                  className="input num"
                   type="number"
                   min="0"
                   value={editCurr}
@@ -90,97 +95,72 @@ function BillDetailModal({ bill, tenant, onClose, onBillUpdated }) {
               </label>
             </div>
           )}
-          {editError && <p className="bh-edit-error">{editError}</p>}
+          {editError && <p className="error-msg bh-edit-error" role="alert">{editError}</p>}
+
+          <div className="bh-total">
+            <span>Total due</span>
+            <span className="bh-total-value num">{npr(bill.totalBill)}</span>
+          </div>
         </div>
 
-        <div className="bh-modal-total">
-          <span>Total Amount Due</span>
-          <span className="mono bh-total-val">NPR {bill.totalBill.toLocaleString()}</span>
-        </div>
-
-        <div className="bh-modal-actions">
+        <div className="modal-actions">
           {!isEditing ? (
-            <button className="bh-edit-btn" onClick={() => setIsEditing(true)}>
-              ✏️ Correct meter readings
-            </button>
+            <>
+              <button className="btn btn-ghost" type="button" onClick={() => setIsEditing(true)}>
+                <Icon name="pencil" />
+                Correct readings
+              </button>
+              {tenant.phone && (
+                <a className="btn btn-primary" href={whatsAppUrl(tenant, bill)} target="_blank" rel="noopener noreferrer">
+                  <Icon name="message" />
+                  Send on WhatsApp
+                </a>
+              )}
+            </>
           ) : (
             <>
-              <button className="bh-save-btn" onClick={handleSaveEdit} disabled={saving}>
-                {saving ? 'Saving…' : '✓ Save correction'}
-              </button>
-              <button className="bh-cancel-btn" onClick={() => { setIsEditing(false); setEditError(''); setEditPrev(String(bill.previousUnit)); setEditCurr(String(bill.currentUnit)); }}>
-                Cancel
+              <button className="btn btn-ghost" type="button" onClick={cancelEdit}>Cancel</button>
+              <button className="btn btn-primary" type="button" onClick={handleSaveEdit} disabled={saving}>
+                {saving ? 'Saving…' : 'Save correction'}
               </button>
             </>
           )}
         </div>
-
-        {tenant.phone && (
-          <a
-            className="bh-whatsapp-btn"
-            href={whatsAppUrl(tenant, bill)}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            📲 Send WhatsApp
-          </a>
-        )}
       </div>
     </div>
   );
 }
 
 export default function BillHistory({ history, tenant, onBillUpdate }) {
-  const [expanded, setExpanded] = useState(false);
   const [selectedBill, setSelectedBill] = useState(null);
 
-  if (!history || history.length === 0) return null;
+  if (!history || history.length === 0) {
+    return (
+      <div className="bh-empty">
+        <Icon name="receipt" size={20} />
+        <p>No bills yet. Enter this month's meter reading to create the first one.</p>
+      </div>
+    );
+  }
 
   const sorted = [...history].reverse();
-  const display = expanded ? sorted : sorted.slice(0, 3);
 
   return (
     <>
-      <div className="bill-history-card">
-        <div className="history-header">
-          <h3 className="history-title">Bill History</h3>
-          <span className="history-count">{history.length} bills</span>
-        </div>
-        <div className="history-list">
-          {display.map((bill) => (
-            <div
-              className="history-item history-item-clickable"
-              key={bill._id}
-              onClick={() => setSelectedBill(bill)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  setSelectedBill(bill);
-                }
-              }}
-              role="button"
-              tabIndex={0}
-            >
-              <div className="history-item-top">
-                <span className="history-month">{bill.month}</span>
-                <span className="history-total mono">NPR {bill.totalBill.toLocaleString()}</span>
-              </div>
-              <div className="history-breakdown">
-                <span>Rent: NPR {bill.rent.toLocaleString()}</span>
-                <span>Water: NPR {bill.waterBill.toLocaleString()}</span>
-                <span>Wastage: NPR {bill.wastageBill.toLocaleString()}</span>
-                <span>Electricity: NPR {bill.electricityBill.toLocaleString()} ({bill.previousUnit} → {bill.currentUnit} = {bill.consumedUnits} units)</span>
-              </div>
-              <span className="history-item-hint">Tap for details →</span>
-            </div>
-          ))}
-        </div>
-        {history.length > 3 && (
-          <button className="history-toggle" onClick={() => setExpanded(!expanded)}>
-            {expanded ? 'Show less ▲' : `Show all ${history.length} bills ▼`}
-          </button>
-        )}
-      </div>
+      <ul className="bh-list">
+        {sorted.map((bill) => (
+          <li key={bill._id}>
+            <button className="bh-item" type="button" onClick={() => setSelectedBill(bill)}>
+              <span className="bh-item-text">
+                <span className="bh-item-month">{bill.month}</span>
+                <span className="bh-item-meta num">{bill.consumedUnits} units</span>
+              </span>
+              <span className="bh-item-total num">{npr(bill.totalBill)}</span>
+              <Icon name="chevronRight" />
+            </button>
+          </li>
+        ))}
+      </ul>
 
       {selectedBill && tenant && (
         <BillDetailModal

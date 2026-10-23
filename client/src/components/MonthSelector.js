@@ -1,5 +1,6 @@
 import React from 'react';
 import './MonthSelector.css';
+import Icon from './Icon';
 
 const MONTHS = [
   'January','February','March','April','May','June',
@@ -19,11 +20,11 @@ export default function MonthSelector({ value, onChange }) {
   };
 
   return (
-    <div className="month-selector">
-      <label className="month-selector-label">Billing Month</label>
-      <div className="month-selector-controls">
+    <div className="month-selector" role="group" aria-label="Billing month">
+      <span className="select-wrap">
         <select
           className="month-select"
+          aria-label="Month"
           value={selMonth}
           onChange={(e) => handleChange('month', e.target.value)}
         >
@@ -31,8 +32,12 @@ export default function MonthSelector({ value, onChange }) {
             <option key={m} value={m}>{m}</option>
           ))}
         </select>
+        <Icon name="chevronDown" size={14} />
+      </span>
+      <span className="select-wrap">
         <select
           className="month-select"
+          aria-label="Year"
           value={selYear}
           onChange={(e) => handleChange('year', e.target.value)}
         >
@@ -40,7 +45,8 @@ export default function MonthSelector({ value, onChange }) {
             <option key={y} value={y}>{y}</option>
           ))}
         </select>
-      </div>
+        <Icon name="chevronDown" size={14} />
+      </span>
     </div>
   );
 }

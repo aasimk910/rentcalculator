@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './TenantForm.css';
+import Icon from './Icon';
 import { ELECTRICITY_RATE } from '../billing';
 
 const defaultForm = {
@@ -100,156 +101,110 @@ export default function TenantForm({ onSave, editingTenant, onCancelEdit }) {
     : null;
   const electricityPreview = consumed !== null ? consumed * ELECTRICITY_RATE : null;
 
+  const field = (name, label, { type = 'text', affix, placeholder, optional } = {}) => (
+    <div className={`field ${errors[name] ? 'has-error' : ''}`}>
+      <label className="field-label" htmlFor={name}>
+        {label}{optional && <span className="field-optional"> (optional)</span>}
+      </label>
+      {affix ? (
+        <div className="input-group">
+          {affix.before && <span className="input-affix input-affix-before">{affix.before}</span>}
+          <input
+            id={name}
+            name={name}
+            className="input"
+            type={type}
+            min={type === 'number' ? '0' : undefined}
+            inputMode={type === 'number' ? 'numeric' : undefined}
+            placeholder={placeholder}
+            value={form[name]}
+            onChange={handleChange}
+            autoComplete="off"
+            aria-invalid={Boolean(errors[name])}
+          />
+          {affix.after && <span className="input-affix">{affix.after}</span>}
+        </div>
+      ) : (
+        <input
+          id={name}
+          name={name}
+          className="input"
+          type={type}
+          placeholder={placeholder}
+          value={form[name]}
+          onChange={handleChange}
+          autoComplete="off"
+          aria-invalid={Boolean(errors[name])}
+        />
+      )}
+      {errors[name] && <span className="error-msg">{errors[name]}</span>}
+    </div>
+  );
+
   return (
-    <div className="tenant-form-card">
-      <div className="form-card-header">
-        <h2 className="form-card-title">
-          {editingTenant ? 'Edit Tenant' : 'Add New Tenant'}
-        </h2>
+    <div className="tenant-form panel">
+      <div className="tenant-form-head">
+        <div>
+          <p className="section-label">{editingTenant ? 'Edit tenant' : 'New tenant'}</p>
+          <h2 className="tenant-form-title">{editingTenant ? editingTenant.name : 'Add a tenant'}</h2>
+        </div>
         {onCancelEdit && (
-          <button className="btn-ghost" onClick={onCancelEdit}>Cancel</button>
+          <button className="icon-btn" type="button" onClick={onCancelEdit} aria-label="Close form" title="Close">
+            <Icon name="x" />
+          </button>
         )}
       </div>
 
       <form onSubmit={handleSubmit} noValidate>
-        <div className="form-section">
-          <h3 className="form-section-title">Tenant Details</h3>
-          <div className="form-row">
-            <div className={`form-group ${errors.name ? 'has-error' : ''}`}>
-              <label htmlFor="name">Tenant Name</label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                placeholder="e.g. Ram Bahadur Thapa"
-                value={form.name}
-                onChange={handleChange}
-                autoComplete="off"
-              />
-              {errors.name && <span className="error-msg">{errors.name}</span>}
-            </div>
-            <div className={`form-group ${errors.roomNumber ? 'has-error' : ''}`}>
-              <label htmlFor="roomNumber">Room Number</label>
-              <input
-                id="roomNumber"
-                name="roomNumber"
-                type="text"
-                placeholder="e.g. 101"
-                value={form.roomNumber}
-                onChange={handleChange}
-                autoComplete="off"
-              />
-              {errors.roomNumber && <span className="error-msg">{errors.roomNumber}</span>}
-            </div>
+        <section className="form-section">
+          <h3 className="section-label">Tenant</h3>
+          <div className="form-grid">
+            {field('name', 'Name', { placeholder: 'e.g. Ram Bahadur Thapa' })}
+            {field('roomNumber', 'Room', { placeholder: 'e.g. 101' })}
           </div>
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="phone">WhatsApp Number <span style={{fontWeight:400,color:'var(--text-muted)'}}>(optional)</span></label>
-              <div className="input-with-prefix">
-                <span className="input-prefix">📱</span>
-                <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  placeholder="e.g. 9841234567"
-                  value={form.phone}
-                  onChange={handleChange}
-                  autoComplete="off"
-                />
-              </div>
-            </div>
+          {field('phone', 'WhatsApp number', { type: 'tel', placeholder: 'e.g. 9841234567', optional: true, affix: { before: <Icon name="message" size={14} /> } })}
+        </section>
+
+        <section className="form-section">
+          <h3 className="section-label">Monthly charges</h3>
+          <div className="form-grid form-grid-3">
+            {field('rent', 'Rent', { type: 'number', placeholder: '0', affix: { before: 'NPR' } })}
+            {field('waterBill', 'Water', { type: 'number', placeholder: '0', affix: { before: 'NPR' } })}
+            {field('wastageBill', 'Wastage', { type: 'number', placeholder: '0', affix: { before: 'NPR' } })}
           </div>
-        </div>
+        </section>
 
-        <div className="form-section">
-          <h3 className="form-section-title">Fixed Charges</h3>
-          <div className="form-row form-row-3">
-            <div className={`form-group ${errors.rent ? 'has-error' : ''}`}>
-              <label htmlFor="rent">Monthly Rent</label>
-              <div className="input-with-prefix">
-                <span className="input-prefix">NPR</span>
-                <input id="rent" name="rent" type="number" min="0" placeholder="0" value={form.rent} onChange={handleChange} />
-              </div>
-              {errors.rent && <span className="error-msg">{errors.rent}</span>}
-            </div>
-            <div className={`form-group ${errors.waterBill ? 'has-error' : ''}`}>
-              <label htmlFor="waterBill">Water Bill</label>
-              <div className="input-with-prefix">
-                <span className="input-prefix">NPR</span>
-                <input id="waterBill" name="waterBill" type="number" min="0" placeholder="0" value={form.waterBill} onChange={handleChange} />
-              </div>
-              {errors.waterBill && <span className="error-msg">{errors.waterBill}</span>}
-            </div>
-            <div className={`form-group ${errors.wastageBill ? 'has-error' : ''}`}>
-              <label htmlFor="wastageBill">Wastage / Garbage Bill</label>
-              <div className="input-with-prefix">
-                <span className="input-prefix">NPR</span>
-                <input id="wastageBill" name="wastageBill" type="number" min="0" placeholder="0" value={form.wastageBill} onChange={handleChange} />
-              </div>
-              {errors.wastageBill && <span className="error-msg">{errors.wastageBill}</span>}
-            </div>
+        <section className="form-section">
+          <div className="form-section-head">
+            <h3 className="section-label">Electricity meter</h3>
+            <span className="field-hint">NPR {ELECTRICITY_RATE} per unit</span>
           </div>
-        </div>
-
-        <div className="form-section">
-          <h3 className="form-section-title">Electricity Meter Reading</h3>
-          <p className="form-section-note">Rate: NPR {ELECTRICITY_RATE} per unit consumed</p>
-
-          <div className={`form-group ${errors.previousUnit ? 'has-error' : ''}`}>
-            <label htmlFor="previousUnit">{editingTenant ? "Previous Month's Unit" : 'Opening Meter Reading'}</label>
-            <div className="input-with-prefix">
-              <span className="input-prefix">kWh</span>
-              <input
-                id="previousUnit"
-                name="previousUnit"
-                type="number"
-                min="0"
-                placeholder="e.g. 1500"
-                value={form.previousUnit}
-                onChange={handleChange}
-              />
-            </div>
-            {errors.previousUnit && <span className="error-msg">{errors.previousUnit}</span>}
-          </div>
-
-          <div className={`form-group ${errors.currentUnit ? 'has-error' : ''}`} style={{ marginTop: editingTenant ? '0.75rem' : '0' }}>
-            <label htmlFor="currentUnit">Current Month's Unit</label>
-            <div className="input-with-prefix">
-              <span className="input-prefix">kWh</span>
-              <input
-                id="currentUnit"
-                name="currentUnit"
-                type="number"
-                min="0"
-                placeholder="0"
-                value={form.currentUnit}
-                onChange={handleChange}
-              />
-            </div>
-            {errors.currentUnit && <span className="error-msg">{errors.currentUnit}</span>}
+          <div className="form-grid">
+            {field('previousUnit', editingTenant ? 'Previous reading' : 'Opening reading', { type: 'number', placeholder: 'e.g. 1500', affix: { after: 'kWh' } })}
+            {field('currentUnit', 'Current reading', { type: 'number', placeholder: '0', affix: { after: 'kWh' } })}
           </div>
 
           {consumed !== null && (
             <div className="electricity-preview">
-              <span className="elec-calc">
-                ({Number(form.currentUnit) || 0} − {prevUnitValue}) ={' '}
-                <span className="mono">{consumed}</span> units × NPR {ELECTRICITY_RATE} ={' '}
-                <strong className="mono amber-text">NPR {electricityPreview.toLocaleString()}</strong>
+              <Icon name="zap" />
+              <span className="num">
+                {consumed} units × NPR {ELECTRICITY_RATE} = <strong>NPR {electricityPreview.toLocaleString()}</strong>
+                {!editingTenant && <span className="field-hint"> · first bill counts from the opening reading</span>}
               </span>
-              {!editingTenant && (
-                <span className="elec-note"> (first bill from opening meter)</span>
-              )}
             </div>
           )}
-        </div>
+        </section>
 
         {errors.submit && (
-          <div className="error-banner">{errors.submit}</div>
+          <div className="error-banner" role="alert"><Icon name="alert" />{errors.submit}</div>
         )}
 
-        <button type="submit" className="btn-primary" disabled={saving}>
-          {saving ? 'Saving…' : editingTenant ? 'Update Tenant' : 'Add Tenant'}
-        </button>
+        <div className="tenant-form-actions">
+          {onCancelEdit && <button className="btn btn-ghost" type="button" onClick={onCancelEdit}>Cancel</button>}
+          <button type="submit" className="btn btn-primary" disabled={saving}>
+            {saving ? 'Saving…' : editingTenant ? 'Save changes' : 'Add tenant'}
+          </button>
+        </div>
       </form>
     </div>
   );

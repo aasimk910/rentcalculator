@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import Header from './components/Header';
+import Toolbar from './components/Toolbar';
 import TenantForm from './components/TenantForm';
 import TenantList from './components/TenantList';
-import BillHistory from './components/BillHistory';
-import MonthSelector from './components/MonthSelector';
+import BillComposer from './components/BillComposer';
+import Inspector from './components/Inspector';
+import Icon from './components/Icon';
 import { getTenants, createTenant, updateTenant, deleteTenant, restoreTenant, generateBill } from './api';
 import './App.css';
 
 const THEME_KEY = 'rent-calculator-theme';
-const THEME_COLORS = { light: '#ffffff', dark: '#19232c' };
+const THEME_COLORS = { light: '#ececec', dark: '#0c0c0e' };
 const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
 const defaultMonth = () => {
@@ -140,76 +141,127 @@ export default function App() {
     }
   };
 
+  // On narrow screens the canvas sits below the tenant list, so bring it into view
+  const revealCanvas = () => {
+    if (window.matchMedia('(max-width: 760px)').matches) {
+      document.getElementById('main-content')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const handleSelect = (tenant) => {
+    setSelectedTenant(tenant);
+    setEditingTenant(null);
+    setShowTenantForm(false);
+    revealCanvas();
+  };
+
+  const handleAdd = () => {
+    setEditingTenant(null);
+    setShowTenantForm(true);
+    revealCanvas();
+  };
+
   const handleEdit = (tenant) => {
     setEditingTenant(tenant);
     setShowTenantForm(true);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    revealCanvas();
   };
+
+  const closeForm = () => {
+    setEditingTenant(null);
+    setShowTenantForm(false);
+  };
+
+  const handleBillUpdate = (updatedTenant) => {
+    setTenants((prev) => prev.map((t) => (t._id === updatedTenant._id ? updatedTenant : t)));
+    setSelectedTenant(updatedTenant);
+  };
+
+  let canvas;
+  if (showTenantForm) {
+    canvas = <TenantForm onSave={handleSave} editingTenant={editingTenant} onCancelEdit={closeForm} />;
+  } else if (selectedTenant) {
+    canvas = (
+      <BillComposer
+        tenant={selectedTenant}
+        month={month}
+        onSave={handleGenerateBill}
+        saving={generating}
+        onEditTenant={() => handleEdit(selectedTenant)}
+      />
+    );
+  } else {
+    canvas = (
+      <div className="canvas-empty">
+        <span className="canvas-empty-icon"><Icon name={tenants.length ? 'receipt' : 'users'} size={24} /></span>
+        <h2>{tenants.length ? 'Pick a tenant to bill' : 'Start with your first tenant'}</h2>
+        <p>
+          {tenants.length
+            ? `Choose someone from the list to prepare their ${month} bill.`
+            : 'Add a tenant with their rent, charges and meter reading.'}
+        </p>
+        {!loading && !tenants.length && (
+          <button className="btn btn-primary" type="button" onClick={handleAdd}>
+            <Icon name="plus" />
+            Add tenant
+          </button>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="app">
       <a className="skip-link" href="#main-content">Skip to main content</a>
-      <Header theme={theme} onThemeChange={changeTheme} />
-      <main className="app-main" id="main-content">
-        <div className="app-layout">
-          {/* Left column */}
-          <div className="left-col">
-            <TenantList
-              tenants={tenants}
-              selectedId={selectedTenant?._id}
-              onSelect={setSelectedTenant}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onGenerateBill={handleGenerateBill}
-              month={month}
-              generating={generating}
-              loading={loading}
-            />
-            {!showTenantForm && (
-              <button className="add-tenant-toggle" onClick={() => setShowTenantForm(true)}>
-                <span className="add-tenant-icon">+</span>
-                Add New Tenant
-              </button>
-            )}
-            {showTenantForm && (
-              <TenantForm
-                onSave={handleSave}
-                editingTenant={editingTenant}
-                onCancelEdit={() => {
-                  setEditingTenant(null);
-                  setShowTenantForm(false);
-                }}
-              />
-            )}
-          </div>
-
-          {/* Right column */}
-          <div className="right-col">
-            <div className="month-bar">
-              <MonthSelector value={month} onChange={setMonth} />
+      <div className="shell">
+        <aside className="sidebar panel" aria-label="Tenants">
+          <div className="sidebar-brand">
+            <span className="brand-mark" aria-hidden="true"><Icon name="home" size={18} /></span>
+            <div>
+              <h1 className="brand-title">Rent Calculator</h1>
+              <p className="brand-sub">Tenant billing · NPR</p>
             </div>
-            {selectedTenant && (
-              <BillHistory
-                history={selectedTenant.billHistory}
-                tenant={selectedTenant}
-                onBillUpdate={(updatedTenant) => {
-                  setTenants((prev) => prev.map((t) => (t._id === updatedTenant._id ? updatedTenant : t)));
-                  setSelectedTenant(updatedTenant);
-                }}
-              />
-            )}
           </div>
-        </div>
-      </main>
+          <TenantList
+            tenants={tenants}
+            selectedId={selectedTenant?._id}
+            month={month}
+            onSelect={handleSelect}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onAdd={handleAdd}
+            loading={loading}
+          />
+        </aside>
 
-      <footer className="app-footer">
-        <span>Rent Calculator</span>
-        <span>Built for clear monthly billing</span>
-      </footer>
+        <main className="workspace" id="main-content">
+          <Toolbar
+            month={month}
+            onMonthChange={setMonth}
+            onAddTenant={handleAdd}
+            theme={theme}
+            onThemeChange={changeTheme}
+          />
+          <div className="canvas">{canvas}</div>
+        </main>
+
+        <aside className="inspector panel" aria-label={selectedTenant ? `${selectedTenant.name} details` : 'Month overview'}>
+          <Inspector
+            tenant={selectedTenant}
+            tenants={tenants}
+            month={month}
+            onSelect={handleSelect}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onBillUpdate={handleBillUpdate}
+          />
+        </aside>
+      </div>
 
       {toast && (
-        <div className={`toast toast-${toast.type}`}>
-          {toast.type === 'success' ? '✓' : '✕'} {toast.msg}
+        <div className={`toast toast-${toast.type}`} role="status">
+          <span className="toast-icon"><Icon name={toast.type === 'success' ? 'check' : 'alert'} /></span>
+          <span>{toast.msg}</span>
           {toast.action && (
             <button className="toast-action" type="button" onClick={() => { setToast(null); toast.action.onClick(); }}>
               {toast.action.label}
