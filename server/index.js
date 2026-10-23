@@ -1,3 +1,5 @@
+const path = require('path');
+const fs = require('fs');
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -11,9 +13,18 @@ app.use(express.json());
 // Routes
 app.use('/api/tenants', require('./routes/tenants'));
 
-app.get('/', (req, res) => {
-  res.json({ message: 'Rent Calculator API is running' });
-});
+// When a client build sits next to the server (the Docker image), serve it from the
+// same origin as the API so the frontend can call /api without a separate host.
+const CLIENT_BUILD = path.join(__dirname, '..', 'client', 'build');
+
+if (fs.existsSync(CLIENT_BUILD)) {
+  app.use(express.static(CLIENT_BUILD));
+  app.get(/^\/(?!api(\/|$)).*/, (req, res) => res.sendFile(path.join(CLIENT_BUILD, 'index.html')));
+} else {
+  app.get('/', (req, res) => {
+    res.json({ message: 'Rent Calculator API is running' });
+  });
+}
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;

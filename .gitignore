@@ -6,3 +6,8 @@ server/.env
 build/
 .vercel
 .env*
+
+# Self-hosted backups
+backups/
+backup.log
+*.archive

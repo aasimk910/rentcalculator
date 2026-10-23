@@ -1,0 +1,29 @@
+# Self-hosted stack: app (API + client) and MongoDB. Data lives in the mongo-data volume.
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      MONGO_URI: mongodb://mongo:27017/rentcalculator
+      PORT: 5000
+    ports:
+      - "127.0.0.1:8090:5000"
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  mongo:
+    # 8.2 runs on kernel 6.19+; mongo:8 (8.3) and 8.0 refuse to start there (SERVER-121912)
+    image: mongo:8.2
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+volumes:
+  mongo-data:
